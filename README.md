@@ -9,7 +9,9 @@ This implementation is a port of the original C implementation from https://gith
 It uses exactly the same serialization format, encryption and hashing algorithms and should as such be 
 compatible with the C implementation.
 
-(TBD: See the documentation for a complete walk through of how to use macaroons.)
+## Documentation
+See the file [WALKTHROUGH.TXT](https://github.com/JornWildt/Macaroons.Net/blob/master/WALKTHROUGH.TXT) for
+a complete guide to using Macaroons.Net.
 
 ## Articles, presentations and tools
 * [Google Research publication](http://research.google.com/pubs/pub41892.html)
