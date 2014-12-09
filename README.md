@@ -10,7 +10,8 @@ This implementation is a port of the original C implementation from https://gith
 It uses exactly the same serialization format, encryption and hashing algorithms and should as such be 
 compatible with the C implementation.
 
-License: MIT, see LICENSE file.
+## License
+MIT, see LICENSE file.
 
 ## Author
 Jørn Wildt
