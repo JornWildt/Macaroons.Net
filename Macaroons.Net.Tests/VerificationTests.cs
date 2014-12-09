@@ -1,11 +1,8 @@
-﻿using System;
+﻿using NUnit.Framework;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using NUnit.Framework;
 
 
-namespace Macaroons.Net.Tests
+namespace Macaroons.Tests
 {
   [TestFixture]
   public class VerificationTests : TestBase
@@ -33,7 +30,7 @@ namespace Macaroons.Net.Tests
       m.AddFirstPartyCaveat("account = 3735928559");
 
       Verifier v = new Verifier();
-      v.SatisfyExcact("account = 3735928559");
+      v.SatisfyExact("account = 3735928559");
 
       // Act
       VerificationResult verified = m.Verify(v, Secret);
@@ -53,9 +50,9 @@ namespace Macaroons.Net.Tests
       m.AddFirstPartyCaveat("email = alice@example.org");
 
       Verifier v = new Verifier();
-      v.SatisfyExcact("account = 3735928559");
-      v.SatisfyExcact("time < 2015-01-01T00:00");
-      v.SatisfyExcact("email = alice@example.org");
+      v.SatisfyExact("account = 3735928559");
+      v.SatisfyExact("time < 2015-01-01T00:00");
+      v.SatisfyExact("email = alice@example.org");
 
       // Act
       VerificationResult verified = m.Verify(v, Secret);
@@ -100,7 +97,7 @@ namespace Macaroons.Net.Tests
       m.AddFirstPartyCaveat("account = 3735928559");
 
       Verifier v = new Verifier();
-      v.SatisfyExcact("account = 88778");
+      v.SatisfyExact("account = 88778");
 
       // Act
       VerificationResult verified = m.Verify(v, Secret);
@@ -121,7 +118,7 @@ namespace Macaroons.Net.Tests
       m.AddFirstPartyCaveat("account = 3735928559");
 
       Verifier v = new Verifier();
-      v.SatisfyExcact("account = 3735928559");
+      v.SatisfyExact("account = 3735928559");
 
       // Act
       VerificationResult verified = m.Verify(v, Secret);
@@ -147,9 +144,9 @@ namespace Macaroons.Net.Tests
       Macaroon mInvalid = Macaroon.Deserialize(serialized);
 
       Verifier v = new Verifier();
-      v.SatisfyExcact("account = 3735928559");
-      v.SatisfyExcact("time < 2015-01-01T00:00");
-      v.SatisfyExcact("email = alice@example.org");
+      v.SatisfyExact("account = 3735928559");
+      v.SatisfyExact("time < 2015-01-01T00:00");
+      v.SatisfyExact("email = alice@example.org");
 
       // Act
       VerificationResult verifiedOk = mValid.Verify(v, Secret);
@@ -197,7 +194,7 @@ namespace Macaroons.Net.Tests
 
       // Create verifier with suitable predicates
       Verifier v = new Verifier();
-      v.SatisfyExcact("account = 3735928559");
+      v.SatisfyExact("account = 3735928559");
       v.SatisfyGeneral(TimeVerifier);
 
       // Act
@@ -238,7 +235,7 @@ namespace Macaroons.Net.Tests
 
       // Create verifier with suitable predicates
       Verifier v = new Verifier();
-      v.SatisfyExcact("account = 3735928559");
+      v.SatisfyExact("account = 3735928559");
       v.SatisfyGeneral(TimeVerifier);
 
       // Act
@@ -281,7 +278,7 @@ namespace Macaroons.Net.Tests
 
       // Create verifier with suitable predicates
       Verifier v = new Verifier();
-      v.SatisfyExcact("account = 3735928559");
+      v.SatisfyExact("account = 3735928559");
       // - exclude time verifier
 
       // Act

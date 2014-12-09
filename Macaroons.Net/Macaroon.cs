@@ -8,7 +8,7 @@ using System.Security.Cryptography;
 using System.Text;
 
 
-namespace Macaroons.Net
+namespace Macaroons
 {
   public class Macaroon
   {
@@ -131,15 +131,17 @@ namespace Macaroons.Net
     }
 
 
-    public void AddFirstPartyCaveat(string predicate)
+    public Macaroon AddFirstPartyCaveat(string predicate)
     {
       Condition.Requires(predicate, "predicate").IsNotNull();
 
       AddFirstPartyCaveat(new Packet(predicate));
+
+      return this;
     }
 
 
-    public void AddFirstPartyCaveat(Packet predicate)
+    public Macaroon AddFirstPartyCaveat(Packet predicate)
     {
       Condition.Requires(Signature != null  &&  Signature.Length > PacketSerializerBase.PACKET_PREFIX).IsTrue();
       Condition.Requires(CaveatsList.Count + 1, "Number of caveats").IsLessThan(MACAROON_MAX_CAVEATS);
@@ -149,24 +151,30 @@ namespace Macaroons.Net
       CaveatsList.Add(new Caveat(predicate, null, null));
 
       Signature = hash;
+
+      return this;
     }
 
 
-    public void AddThirdPartyCaveat(string location, string key, string identifier)
+    public Macaroon AddThirdPartyCaveat(string location, string key, string identifier)
     {
       Condition.Requires(identifier, "identifier").IsNotNull();
       Condition.Requires(key, "key").IsNotNull();
 
       AddThirdPartyCaveat(location != null ? new Packet(location) : null, new Packet(key), new Packet(identifier));
+
+      return this;
     }
 
 
-    public void AddThirdPartyCaveat(Packet location, Packet key, Packet identifier)
+    public Macaroon AddThirdPartyCaveat(Packet location, Packet key, Packet identifier)
     {
       Condition.Requires(key, "key").IsNotNull();
 
       Packet derievedKey = GenerateDerivedKey(key);
       AddThirdPartyCaveatRaw(location, derievedKey, identifier);
+
+      return this;
     }
 
 

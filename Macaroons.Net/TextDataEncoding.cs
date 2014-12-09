@@ -2,7 +2,7 @@
 using System.Text;
 
 
-namespace Macaroons.Net
+namespace Macaroons
 {
   /// <summary>
   /// Represents an encoding for converting to and from strings in UTF8, ASCII and other formats.

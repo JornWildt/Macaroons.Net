@@ -2,7 +2,7 @@
 using System.Text;
 
 
-namespace Macaroons.Net
+namespace Macaroons
 {
   /// <summary>
   /// Represents a blob of bytes and associated encoding for textual representation of it.

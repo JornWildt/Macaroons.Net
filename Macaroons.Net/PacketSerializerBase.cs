@@ -1,7 +1,7 @@
 ﻿using System.Text;
 
 
-namespace Macaroons.Net
+namespace Macaroons
 {
   public class PacketSerializerBase
   {

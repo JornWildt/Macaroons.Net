@@ -2,7 +2,7 @@
 using System.Runtime.Remoting.Metadata.W3cXsd2001;
 
 
-namespace Macaroons.Net
+namespace Macaroons
 {
   /// <summary>
   /// Represents an encoding for converting to and from hexadecimal strings.

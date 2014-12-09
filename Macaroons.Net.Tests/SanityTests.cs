@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 
-namespace Macaroons.Net.Tests
+namespace Macaroons.Tests
 {
   // These tests go through the examples from the tutorial on 
   // the original libmacaroons GitHub page at https://github.com/rescrv/libmacaroons
@@ -156,7 +156,7 @@ Signature = D27DB2FD1F22760E4C3DAE8137E2D8FC1DF6C0741C18AED4B97256BF78D1F55C
       Macaroon dp = m.PrepareForRequest(d);
 
       Verifier v = new Verifier();
-      v.SatisfyExcact("account = 3735928559");
+      v.SatisfyExact("account = 3735928559");
       v.SatisfyGeneral(TimeVerifier);
 
       // Act

@@ -2,7 +2,7 @@
 using System.Text;
 
 
-namespace Macaroons.Net.Tests
+namespace Macaroons.Tests
 {
   public class TestBase
   {

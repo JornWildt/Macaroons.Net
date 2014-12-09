@@ -3,7 +3,7 @@ using System;
 using System.IO;
 
 
-namespace Macaroons.Net
+namespace Macaroons
 {
   public class PacketWriter : PacketSerializerBase, IDisposable
   {

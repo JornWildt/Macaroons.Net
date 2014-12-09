@@ -3,7 +3,7 @@ using System;
 using System.Runtime.InteropServices;
 
 
-namespace Macaroons.Net
+namespace Macaroons
 {
   public static class Utility
   {

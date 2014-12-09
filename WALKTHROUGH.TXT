@@ -1,0 +1,525 @@
+This a copy of the documentation from the original C implementation 
+at https://github.com/rescrv/libmacaroons/.
+
+I take no credit for the walkthrough besides having modified it for use with 
+Macaroons.Net.
+
+All these examples are included in the "Walkthrough" project.
+
+Installing Macaroons
+--------------------
+
+This library makes it easy to get started with using macaroons in your service.
+To use the library you must first install it (by compiling the source yourself
+or get it from NuGet once it is available there).
+
+You'll also need to install libsodium[1] for C# - which is fairly simpel using
+NuGet. Just remember to ensure that either libsodium-64.dll or libsodium.dll 
+or both are copied to the output directory.
+
+Creating Your First Macaroon
+----------------------------
+
+Imagine that you ran a bank, and were looking to use macaroons as the basis of
+your authorization logic. Assuming you already installed Macaroons.Net, you can
+create a macaroon like this:
+
+    using Macaroons;
+    string secret = "this is our super secret key; only we should know it";
+    string pubid = "we used our secret key";
+    string location = "http://mybank/";
+    Macaroon m = new Macaroon(location, secret, pubid);
+
+We've created our first macaroon!
+
+You can see here that it took three pieces of information to create a macaroon.
+We start with a secret. Here, we just have English text, but in reality we
+would want to use something more random and less predictable (see below for a
+suggestion on how to generate one). The public portion tells us which secret we
+used to create the macaroon, but doesn't give anyone else a clue as to the
+contents of the secret. Anyone in possession of the macaroon can see the public
+portion:
+
+    Console.WriteLine(m.Identifier);
+    > we used our secret key
+
+This public portion, known as the macaroon's identifier, can be anything that
+enables us to remember our secret. In this example, we know that the string 'we
+used our secret key' always refers to this secret. We could just as easily keep
+a database mapping public macaroon identities to private secrets, or encrypt the
+public portion using a key known only to us. The only requirement here is that
+our application be able to remember the secret given the public portion, and
+that no one else is able to guess the secret.
+
+Our macaroon includes some additional information that enables us to add caveats
+and figure out where the macaroon should be used. The macaroon's location gives
+a hint to the user about where the macaroon is accepted for authorization. This
+hint is a free-form string maintained to help applications figure out where to
+use macaroons; the Macaroons.Net library do not ascribe any meaning to this 
+location.
+
+Each macaroon also has a signature that is the key used to add caveats and
+verify the macaroon. The signature is computed by the macaroons library, and is
+unique to each macaroon. Applications should never need to directly work with
+the signature of the macaroon. Any entity in possession of the macaroon's
+signature should be assumed to possess the macaroon itself.
+
+Both of these pieces of information are publicly accessible:
+
+    Console.WriteLine(m.Location);
+    > http://mybank/
+    Console.WriteLine(m.Signature);
+    > E3D9E02908526C4C0039AE15114115D97FDD68BF2BA379B342AAF0F617D0552F
+
+We can share this macaroon with others by serializing it. The serialized form
+is pure-ASCII (BASE64 URL safe encoded), and is safe for inclusion in secure 
+email, a standard HTTPS cookie, or a URL. We can get the serialized form with:
+
+    Console.WriteLine(m.Serialize());
+    > MDAxY2xvY2F0aW9uIGh0dHA6Ly9teWJhbmsvCjAwMjZpZGVudGlmaWVyIHdlIHVzZWQgb3VyIHNlY3JldCBrZXkKMDAyZnNpZ25hdHVyZSDj2eApCFJsTAA5rhURQRXZf91ovyujebNCqvD2F9BVLwo
+
+Of course, this serialized form can be displayed in a more human-readable form
+for easy debugging:
+
+    Console.WriteLine(m.Inspect());
+    > Location = http://mybank/
+    > Identifier = we used our secret key
+    > Signature = E3D9E02908526C4C0039AE15114115D97FDD68BF2BA379B342AAF0F617D0552F
+
+Adding Caveats
+--------------
+
+At this point, we have an unconstrained macaroon that authorizes everything
+within our bank. In practice, such a macaroon is dangerous, because very few
+people should hold such power. Let's add a caveat to our macaroon that
+restricts it to just the account number 3735928559.
+
+    m.AddFirstPartyCaveat("account = 3735928559");
+
+This new macaroon includes the same identifier and location that our old
+macaroon from our initial macaroon, but includes the additional caveat that
+restricts the bank account. The signature of this new macaroon is different,
+and incorporates the new caveat we've just added. An entity in possession of
+this new macaroon cannot simply remove our new caveat to construct the old
+macaroon:
+
+    Console.WriteLine(m.Inspect());
+    Location = http://mybank/
+    Identifier = we used our secret key
+    CId = account = 3735928559
+    Signature = 1EFE4763F290DBCE0C1D08477367E11F4EEE456A64933CF662D79772DBB82128
+
+Of course, we can add a few more caveats, and the macaroon's signature will
+change with each of them.
+
+    m.AddFirstPartyCaveat("time < 2015-01-01T00:00");
+    Console.WriteLine(m.Signature);
+    > 696665D0229F9F801B588BB3F68BBDB806B26D1FBCD40CA22D9017BCE4A075F1
+  
+    m.AddFirstPartyCaveat("email = alice@example.org");
+    Console.WriteLine(m.Signature);
+    > 882E6D59496ED5245EDB7AB5B8839ECD63E5D504E54839804F164070D8EED952
+  
+    Console.WriteLine(m.Inspect());
+    > Location = http://mybank/
+    > Identifier = we used our secret key
+    > CId = account = 3735928559
+    > CId = time < 2015-01-01T00:00
+    > CId = email = alice@example.org
+    > Signature = 882E6D59496ED5245EDB7AB5B8839ECD63E5D504E54839804F164070D8EED952
+
+The combination of all caveats in this macaroon authorize alice@example.org to
+access account 3735928559 until the end of 2014. Alice may present this
+macaroon to the bank any time she wishes to prove to the bank that she is
+authorized to access her account. Ideally, she'll transmit the serialized form
+of the macaroon to the bank:
+
+    string msg = m.Serialize();
+    // send msg to the bank
+
+Verifying Macaroons
+-------------------
+
+Our bank application's purpose is to protect users accounts from unauthorized
+access. For that reason, it cannot just accept anything that looks like a
+macaroon---that would defeat the point of using macaroons in the first place.
+So how can we ensure that only authorized users access the bank?
+
+We can determine whether a request is authorized through a process called
+verification. First, we construct a verifier that can determine whether the
+caveats on macaroons are satisfied. We can then use our verifier to determine
+whether a given macaroon is authorized in the context of the request. For
+example, our bank account application knows the account number specified in the
+request, and can specify ``account = #'' when building the verifier. The
+verifier can then check that this matches the information within the macaroon,
+and authorize the macaroon if it does indeed match.
+
+Let's walk through the verification process for Alice's macaroon that we
+constructed in the previous section. The first step, of course, is for the bank
+to deserialize the macaroon from the message. This converts the macaroon into a
+form we can work with.
+
+    m = Macaroon.Deserialize(msg, SerializationOptions);
+    Console.WriteLine(m.Inspect());
+    > Location = http://mybank/
+    > Identifier = we used our secret key
+    > CId = account = 3735928559
+    > CId = time < 2015-01-01T00:00
+    > CId = email = alice@example.org
+    > Signature = 882E6D59496ED5245EDB7AB5B8839ECD63E5D504E54839804F164070D8EED952
+
+We have the same macaroon that Alice believes authorizes her to access her own
+account, but we must verify this for ourselves. One (very flawed) way we could
+try to verify this macaroon would be to manually parse it and authorize the
+request if its caveats are true. But handling things this way completely
+sidesteps all the crypto-goodness that macaroons are built upon.
+
+Another approach to verification would be to use Macaroons.Net's built-in
+verifier to process the macaroon. The verifier hides many of the details of the
+verification process, and provides a natural way to work with many kinds of
+caveats. The verifier itself is constructed once, and may be re-used to verify
+multiple macaroons.
+
+    Verifier v = new Verifier();
+
+Let's go ahead and try to verify the macaroon to see if the request is
+authorized. To verify the request, we need to provide the verifier with Alice's
+macaroon, and the secret that was used to construct it. In a real application,
+we would retrieve the secret using ``M.identifier''; here, we know the secret
+and provide it directly. A verifier can only ever successfully verify the
+macaroon when provided with the macaroon and its corresponding secret---no
+secret, no authorization.
+
+Intuitively, our verifier should say that this macaroon is unauthorized because
+our verifier cannot prove that any of the caveats we've added are satisfied. We
+can see that it fails just as we would expect:
+
+    var result = m.Verify(v, secret);
+    Console.WriteLine("Success: {0}", result.Success);
+    > Success: False
+
+We can inform the verifier of the caveats used by our application using two
+different techniques. The first technique is to directly provide the verifier
+with the caveats that match the context of the request. For example, every
+account-level action in a typical banking application is performed by a specific
+user and targets a specific account. This information is fixed for each
+request, and is known at the time of the request. We can tell the verifier
+directly about these caveats like so:
+
+    v.SatisfyExact("account = 3735928559");
+    v.SatisfyExact("email = alice@example.org");
+
+Caveats like these are called ``exact caveats'' because there is exactly one way
+to satisfy them. Either the account number is 3735928559, or it isn't. At
+verification time, the verifier will check each caveat in the macaroon against
+the list of satisfied caveats provided to ``satisfy_exact''. When it finds a
+match, it knows that the caveat holds and it can move onto the next caveat in
+the macaroon.
+
+Generally, you will specify multiple true statements as exact caveats, and let
+the verifier decide which are relevant to each macaroon at verification time.
+If you provide all exact caveats known to your application to the verifier, it
+becomes trivial to change policy decisions about authorization. The server
+performing authorization can treat the verifier as a black-box and does not need
+to change when changing the authorization policy. The actual policy is enforced
+when macaroons are minted and when caveats are embedded. In our banking
+example, we could provide some additional satisfied caveats to the verifier,
+to describe some (or all) of the properties that are known about the current
+request. In this manner, the verifier can be made more general, and be
+"future-proofed", so that it will still function correctly even if somehow
+the authorization policy for Alice changes; for example, by adding the three
+following facts, the verifier will continue to work even if Alice decides to
+self-attenuate her macaroons to be only usable from her IP address and browser:
+
+    V.SatisfyExact("IP = 127.0.0.1");
+    V.SatisfyExact("browser = Chrome");
+    V.SatisfyExact("action = deposit");
+
+Although it's always possible to satisfy a caveat within a macaroon by providing
+it directly to the verifier, doing so can be quite tedious. Consider the caveat
+on access time embedded within Alice's macaroon. While an authorization routine
+could provide the exact caveat ``time < 2015-01-01T00:00'', doing so would
+require inspecting the macaroon before building the verifier. Just like using
+MD5 to hash passwords, inspecting a macaroon's structure to build a verifier for
+it is considered to be very bad practice, and should be violently demonized in
+Hacker News discussions with vague, slightly inaccurate allusions to pbkdf2.
+
+So how can we tell our verifier that the caveat on access time is satisfied? We
+could provide many exact caveats of the form ``time < YYYY-mm-ddTHH:MM'', but
+this reeks of inefficiency. The second technique for satisfying caveats provides
+a more general solution.
+
+Called ``general caveats'', the second technique for informing the verifier that
+a caveat is satisfied allows for expressive caveats. Whereas exact caveats are
+checked by simple byte-wise equality, general caveats are checked using an
+application-provided callback that returns true if and only if the caveat is
+true within the context of the request. There's no limit on the contents of a
+general caveat, so long as the callback understands how to determine whether it
+is satisfied.
+
+We can verify the time caveat on Alice's macaroon by writing a function that
+checks the current time against the time specified by the caveat:
+
+    static bool CheckTime(Packet cid)
+    {
+      string caveat = cid.ToString();
+      if (!caveat.StartsWith("time < "))
+        return false;
+      DateTime t = DateTime.Parse(caveat.Substring(7));
+      return DateTime.Now < t;
+    }
+
+This callback processes all caveats that begin with ``time < '', and returns
+True if the specified time has not yet passed. We can see that our caveat does
+indeed return True when the caveat holds, and False otherwise:
+
+    Console.WriteLine(CheckTime(new Packet("time < 2015-01-01T00:00")));
+    > True
+    Console.WriteLine(CheckTime(new Packet("time < 2014-01-01T00:00")));
+    > False
+    Console.WriteLine(CheckTime(new Packet("account = 3735928559")));
+    > False
+
+We can provide the ``check_time'' function directly to the verifier, so that it
+may check time-based predicates.
+
+    v.SatisfyGeneral(CheckTime);
+
+It's finally time to verify our macaroon! Now that we've informed the verifier
+of all the various caveats that our application could embed within a macaroon,
+we can expect that the verification step will succeed.
+
+    result = m.Verify(v, secret);
+    Console.WriteLine("Success: {0}", result.Success);
+    > Success: True
+
+More importantly, the verifier will also work for macaroons we've not yet seen,
+like one that only permits Alice to deposit into her account:
+
+    Macaroon n = new Macaroon(m).AddFirstPartyCaveat("action = deposit");
+    result = n.Verify(v, secret);
+    Console.WriteLine("Success: {0}", result.Success);
+    > Success: True
+
+Equally important is the verifier's ability to reject improper macaroons because
+they are not authorized. An improper macaroon could have additional caveats not
+known to the verifier, or have false general caveats. Worse, an unauthorized
+macaroon could be an attempt by a determined attacker to break into our bank.
+The verifier we've built will reject all of these scenarios:
+
+    // Unknown caveat
+    n = new Macaroon(m).AddFirstPartyCaveat("OS = Windows XP");
+    result = n.Verify(v, secret);
+    Console.WriteLine("Success: {0}", result.Success);
+    > Success: False
+
+    // False caveat
+    n = new Macaroon(m).AddFirstPartyCaveat("time < 2014-01-01T00:00");
+    result = n.Verify(v, secret);
+    Console.WriteLine("Success: {0}", result.Success);
+    > Success: False
+
+    // Bad secret
+    result = m.Verify(v, "this is not the secret we were looking for");
+    Console.WriteLine("Success: {0}", result.Success);
+    > Success: False
+
+    // Incompetent hackers trying to change the signature
+    n = Macaroon.Deserialize("MDAxY2xvY2F0aW9uIGh0dHA6Ly9teWJhbmsvCjAwMjZpZGVudGlmaWVyIHdlIHVzZWQgb3VyIHNlY3JldCBrZXkKMDAxZGNpZCBhY2NvdW50ID0gMzczNTkyODU1OQowMDIwY2lkIHRpbWUgPCAyMDE1LTAxLTAxVDAwOjAwCjAwMjJjaWQgZW1haWwgPSBhbGljZUBleGFtcGxlLm9yZwowMDJmc2lnbmF0dXJlID8f19FL+bkC9p/aoMmIecC7GxdOcLVyUnrv6lJMM7NSCg==", SerializationOptions);
+    Console.WriteLine(n.Inspect());
+    > Location = http://mybank/
+    > Identifier = we used our secret key
+    > CId = account = 3735928559
+    > CId = time < 2015-01-01T00:00
+    > CId = email = alice@example.org
+    > Signature = 3F1FD7D14BF9B902F69FDAA0C98879C0BB1B174E70B572527AEFEA524C33B352
+
+    Console.WriteLine("n.Signature == m.Signature: {0}", m.Signature == n.Signature);
+    > n.Signature == m.Signature: False
+
+    result = n.Verify(v, secret);
+    Console.WriteLine("Success: {0}", result.Success);
+    > Success: False
+
+Using Third-Party Caveats
+-------------------------
+
+Like first-party caveats, third-party caveats restrict the context in which a
+macaroon is authorized, but with a different form of restriction. Where a
+first-party caveat is checked directly within the verifier, a third-party caveat
+is checked by the third-party, who provides a discharge macaroon to prove that
+the original third-party caveat is true. The discharge macaroon is recursively
+inspected by the verifier; if it verifies successfully, the discharge macaroon
+serves as a proof that the original third-party caveat is satisfied. Of course,
+nothing stops discharge macaroons from containing embedded first- or third-party
+caveats for the verifier to consider during verification.
+
+Let's rework the above example to provide Alice with access to her account only
+after she authenticates with a service that is separate from the service
+processing her banking transactions.
+
+As before, we'll start by constructing a new macaroon with the caveat that is
+limited to Alice's bank account.
+
+    string location2 = "http://mybank/";
+    string secret2 = "this is a different super-secret key; never use the same secret twice";
+    string pubid2 = "we used our other secret key";
+    m = new Macaroon(location2, secret2, pubid2);
+    m.AddFirstPartyCaveat("account = 3735928559");
+    Console.WriteLine(m.Inspect());
+    > Location = http://mybank/
+    > Identifier = we used our other secret key
+    > CId = account = 3735928559
+    > Signature = 1434E674AD84FDFDC9BC1AA00785325C8B6D57341FC7CE200BA4680C80786DDA
+
+So far, so good. Now let's add a third party caveat to this macaroon that
+requires that Alice authenticate with ``http://auth.mybank/'' before being
+authorized access to her account. To add a third-party caveat we'll need to
+specify a location hint, generate a secret, and somehow be able to identify this
+secret later. Like the location used when creating a macaroon, the location
+used when adding a third-party caveat is simply a hint to the application that
+is uninterpreted by Macaroons.Net.
+
+The secret and identity are handled differently than during creation, however,
+because they need to be known to the third party. To do this, we'll provide the
+third-party with a randomly generated ``caveat_key'' and the predicate we wish
+for it to check. In response, it will give us an identifier that we can embed
+within the macaroon. Later, when we need to construct a discharge macaroon, we
+can provide it with just this identifier, from which it can recall the key and
+predicate to check.
+
+Here's what this looks like in code:
+
+    // you'll likely want to use a higher entropy source to generate this key
+    string caveat_key = "4; guaranteed random by a fair toss of the dice";
+    // string predicate = "user = Alice";
+    // send_to_auth(caveat_key, predicate)
+    // identifier = recv_from_auth()
+    string identifier = "this was how we remind auth of key/pred";
+    m.AddThirdPartyCaveat("http://auth.mybank/", caveat_key, identifier);
+    Console.WriteLine(m.Inspect());
+    > Location = http://mybank/
+    > Identifier = we used our other secret key
+    > CId = account = 3735928559
+    > CId = this was how we remind auth of key/pred
+    >   VId = AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA027FAuBYhtHwJ58FX6UlVNFtFsGxQHS7uD_w_dedwv4Jjw7UorCREw5rXbRqIKhr
+    >   Cl = http://auth.mybank/
+    > Signature = D27DB2FD1F22760E4C3DAE8137E2D8FC1DF6C0741C18AED4B97256BF78D1F55C
+
+We now have a macaroon with a third-party caveat. The most interesting thing to
+note about this macaroon is that it includes no information that reveals the
+predicate it encodes. The third-party service knows the key and the predicate,
+and internally associates them with the identifier, but the identifier itself is
+arbitrary and betrays no information about the predicate to others. The service
+at ``http://auth.mybank/'' can authenticate that the user is Alice, and provide
+proof that the caveat is satisfied, without revealing Alice's identity. Other
+services can verify M and its associated discharge macaroon, without knowing the
+predicates the third-parties verified.
+
+The process for discharging third party caveats starts with the holder of the
+initial root macaroon, Alice. Alice looks at the macaroon for the list of third
+party caveat (location, identifier) pairs that must be addressed.
+
+    var caveats = m.ThirdPartyCaveats;
+    // [('http://auth.mybank/', 'this was how we remind auth of key/pred')]
+
+In a real application, we'd look at these third party caveats, and contact each
+location to retrieve the requisite discharge macaroons. We would include the
+identifier for the caveat in the request itself, so that the server can recall
+the secret used to create the third-party caveat. The server can then generate
+and return a new macaroon that discharges the caveat:
+
+    Macaroon d = new Macaroon("http://auth.mybank/", caveat_key, identifier);
+    d.AddFirstPartyCaveat("time < 2015-01-01T00:00");
+    Console.WriteLine(d.Inspect());
+    > Location = http://auth.mybank/
+    > Identifier = this was how we remind auth of key/pred
+    > CId = time < 2015-01-01T00:00
+    > Signature = 82A80681F9F32D419AF12F6A71787A1BAC3AB199DF934ED950DDF20C25AC8C65
+
+This new macaroon enables the verifier to determine that the third party caveat
+is satisfied. Our target service added a time-limiting caveat to this macaroon
+that ensures that this discharge macaroon does not last forever. This ensures
+that Alice (or, at least someone authenticated as Alice) cannot use the
+discharge macaroon indefinitely and will eventually have to re-authenticate.
+
+Once Alice has both the root macaroon and the discharge macaroon in her
+possession, she can make the request to the target service. Making a request
+with discharge macaroons is only slightly more complicated than making requests
+with a single macaroon. In addition to serializing and transmitting all
+involved macaroons, there is preparation step that binds the discharge macaroons
+to the root macaroon. This binding step ensures that the discharge macaroon is
+useful only when presented alongside the root macaroon. The root macaroon is
+used to bind the discharge macaroons like this:
+
+    Macaroon dp = m.PrepareForRequest(d);
+
+If we were to look at the signatures on these prepared discharge macaroons, we
+would see that the binding process has irreversibly altered their signature(s).
+
+    Console.WriteLine(d.Signature);
+    > 82A80681F9F32D419AF12F6A71787A1BAC3AB199DF934ED950DDF20C25AC8C65
+    Console.WriteLine(dp.Signature);
+    > 2EB01D0DD2B4475330739140188648CF25DDA0425EA9F661F1574CA0A9EAC54E
+
+The root macaroon ``M'' and its discharge macaroons ``MS'' are ready for the
+request. Alice can serialize them all and send them to the bank to prove she is
+authorized to access her account. The bank can verify them using the same
+verifier we built before. We provide the discharge macaroons as a third
+argument to the verify call:
+
+    result = m.Verify(v, secret2, new List<Macaroon> { dp });
+    Console.WriteLine("Success: {0}", result.Success);
+    > Success: True
+
+Without the ``PrepareForRequest'' call, the verification would fail:
+
+    result = m.Verify(v, secret2, new List<Macaroon> { d });
+    Console.WriteLine("Success: {0}", result.Success);
+    > Success: False
+
+Choosing Secrets
+----------------
+
+For clarity, we've generated human-readable secrets that we use as the root keys
+of all of our macaroons. In practice, this is terribly insecure and can lead to
+macaroons that can easily be forged because the secret is too predictable. To
+avoid this, we recommend generating secrets using a sufficient number of
+suitably random bytes. Because the bytes are a secret key, they should be drawn
+from a source with enough entropy to ensure that the key cannot be guessed
+before the macaroon falls out of use.
+
+The macaroons module exposes a constant that is the ideal number of bytes these
+secret keys should contain. Any shorter is wasting an opportunity for security.
+
+    Console.WriteLine(Macaroon.MACAROON_SUGGESTED_SECRET_LENGTH);
+    > 32
+
+To generate a suitable key is very simple using the standard .NET library:
+
+    byte[] randomSecret = new byte[Macaroon.MACAROON_SUGGESTED_SECRET_LENGTH];
+    using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
+      rng.GetBytes(randomSecret);
+
+The secret then has to be wrapped in a Packet to be used as a secret key:
+
+    Packet key = new Packet(randomSecret, DataEncoding.Hex);
+    Console.WriteLine(key);
+    > ... 32 random bytes (64 HEX digits) ...
+
+    // Use secret key to create macaroon
+    m = new Macaroon(new Packet(location), key, new Packet(pubid));
+
+Third-Party Caveats with Public Keys
+------------------------------------
+
+Public key cryptography can enable much more efficient schemes for adding
+third-party caveats. In the above example where we added a third-party caveat,
+the caveat's identifier was generated by the third party and retrieved with in
+one round trip. We can eliminate the round trip when the third party has a
+well-known public key. We can encrypt the caveat's secret, and the predicate to
+be checked using this public key, and use the ciphertext directly as the
+caveat's identifier. This saves a round trip, and frees the third party from
+having to remember an association between identifiers and key/predicate pairs.
+
+[1] https://github.com/jedisct1/libsodium

@@ -1,7 +1,7 @@
 ﻿using System.Text;
 
 
-namespace Macaroons.Net
+namespace Macaroons
 {
   /// <summary>
   /// Represents an encoding scheme for conversion between bytes and strings. Primarily for getting string representations of caveat and macaroon locations but also used for debugging other values.

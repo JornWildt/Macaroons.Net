@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 
 
-namespace Macaroons.Net
+namespace Macaroons
 {
   /// <summary>
   /// Represents the result of verifying a macaroon.

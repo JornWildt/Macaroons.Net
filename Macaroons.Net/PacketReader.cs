@@ -4,7 +4,7 @@ using System.IO;
 using System.Text;
 
 
-namespace Macaroons.Net
+namespace Macaroons
 {
   public class PacketReader : PacketSerializerBase, IDisposable
   {

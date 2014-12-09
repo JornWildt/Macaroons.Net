@@ -1,4 +1,4 @@
-﻿namespace Macaroons.Net
+﻿namespace Macaroons
 {
   public class SerializationOptions
   {

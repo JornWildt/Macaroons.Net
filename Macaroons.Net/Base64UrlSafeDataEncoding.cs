@@ -1,4 +1,4 @@
-﻿namespace Macaroons.Net
+﻿namespace Macaroons
 {
   /// <summary>
   /// Represents an encoding for converting to and from BASE64 URL safe strings.

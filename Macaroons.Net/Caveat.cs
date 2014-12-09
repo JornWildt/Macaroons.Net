@@ -3,7 +3,7 @@ using System;
 using System.Text;
 
 
-namespace Macaroons.Net
+namespace Macaroons
 {
   /// <summary>
   /// Represents a single caveat.

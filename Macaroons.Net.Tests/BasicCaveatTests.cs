@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 
 
-namespace Macaroons.Net.Tests
+namespace Macaroons.Tests
 {
   [TestFixture]
   public class BasicCaveatTests

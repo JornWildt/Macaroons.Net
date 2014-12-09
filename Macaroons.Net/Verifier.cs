@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 
 
-namespace Macaroons.Net
+namespace Macaroons
 {
   /// <summary>
   /// Represents a verifier mechanism for verifying macaroons against a list of predicates.
@@ -30,14 +30,14 @@ namespace Macaroons.Net
     /// Add string representation of a predicate.
     /// </summary>
     /// <param name="predicate"></param>
-    public void SatisfyExcact(string predicate)
+    public void SatisfyExact(string predicate)
     {
       Condition.Requires(predicate, "predicate").IsNotNull();
-      SatisfyExcact(new Packet(predicate));
+      SatisfyExact(new Packet(predicate));
     }
 
 
-    public void SatisfyExcact(Packet predicate)
+    public void SatisfyExact(Packet predicate)
     {
       Condition.Requires(predicate, "predicate");
       Predicates.Add(predicate);
