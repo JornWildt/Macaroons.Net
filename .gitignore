@@ -1,0 +1,17 @@
+Binaries/
+bin/
+obj/
+.nuget/
+*.nupkg
+*.user
+*.suo
+*.dll
+TestResult.xml
+*.VisualState.xml
+*.sdf
+*.opensdf
+UNUSED*
+UNUSED*/
+Logs/
+packages/
+libmacaroons/
