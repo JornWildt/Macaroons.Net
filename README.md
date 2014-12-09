@@ -12,10 +12,24 @@ compatible with the C implementation.
 
 License: MIT, see LICENSE file.
 
-Author
+## Author
 Jørn Wildt
 E-mail: jw@fjeldgruppen.dk
-Twitter: JornWildt
+Twitter: @JornWildt
 
+## Credits
+Macaroons.net depends on the following libraries:
+
+  CuttingEdge.Condition
+    Source: http://conditions.codeplex.com/
+    License: MIT, http://conditions.codeplex.com/license
+    
+  libsodium-net
+    Source: https://github.com/adamcaudill/libsodium-net
+    License: MIT, https://github.com/adamcaudill/libsodium-net/blob/master/LICENSE
+
+## LICENSE
+Macaroons.Net is distributed under the MIT License: http://www.opensource.org/licenses/MIT
+A copy of this license is included in the file LICENSE.TXT
 
 [1] http://research.google.com/pubs/pub41892.html
