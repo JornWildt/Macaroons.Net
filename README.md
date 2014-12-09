@@ -1,5 +1,4 @@
-Macaroons are Better Than Cookies!
-==================================
+# Macaroons are Better Than Cookies!
 
 This library provides a C# implementation of macaroons[1], which are flexible
 authorization tokens that work great in distributed systems. Like cookies,
@@ -10,24 +9,34 @@ This implementation is a port of the original C implementation from https://gith
 It uses exactly the same serialization format, encryption and hashing algorithms and should as such be 
 compatible with the C implementation.
 
-## License
-MIT, see LICENSE file.
+See the documentation for a complete walk through of how to use macaroons.
+
+## Articles, presentations and tools
+* [Google Research publication](http://research.google.com/pubs/pub41892.html)
+* [Techtalk by Úlfar Erlingsson (one of the authors)](https://air.mozilla.org/macaroons-cookies-with-contextual-caveats-for-decentralized-authorization-in-the-cloud/)
+* [Macaroons playground](http://macaroons.io/)
+
+## Other implementations of macaroons
+* [libmacaroons (C)](https://github.com/rescrv/libmacaroons)
+* [jmacaroons (Java)](https://github.com/nitram509/jmacaroons)
+* [pymacaroons (Python)](https://github.com/ecordell/pymacaroons)
+* [macaroon (Go)](https://github.com/rogpeppe/macaroon)
 
 ## Author
-Jørn Wildt
-E-mail: jw@fjeldgruppen.dk
-Twitter: @JornWildt
+* Jørn Wildt
+* E-mail: jw@fjeldgruppen.dk
+* Twitter: @JornWildt
 
-## Credits
+## Dependencies
 Macaroons.net depends on the following libraries:
 
-  CuttingEdge.Condition
-    Source: http://conditions.codeplex.com/
-    License: MIT, http://conditions.codeplex.com/license
+  * CuttingEdge.Condition
+    * Source: http://conditions.codeplex.com/
+    * License: MIT, http://conditions.codeplex.com/license
     
-  libsodium-net
-    Source: https://github.com/adamcaudill/libsodium-net
-    License: MIT, https://github.com/adamcaudill/libsodium-net/blob/master/LICENSE
+  * libsodium-net
+    * Source: https://github.com/adamcaudill/libsodium-net
+    * License: MIT, https://github.com/adamcaudill/libsodium-net/blob/master/LICENSE
 
 ## LICENSE
 Macaroons.Net is distributed under the MIT License: http://www.opensource.org/licenses/MIT
