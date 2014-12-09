@@ -1,7 +1,7 @@
 # Macaroons are Better Than Cookies!
 
-This library provides a C# implementation of macaroons[1], which are flexible
-authorization tokens that work great in distributed systems. Like cookies,
+This library provides a C# implementation of [macaroons](http://research.google.com/pubs/pub41892.html), 
+which are flexible authorization tokens that work great in distributed systems. Like cookies,
 macaroons are bearer tokens that enable applications to ascertain whether their
 holders' actions are authorized. But macaroons are better than cookies!
 
@@ -29,7 +29,11 @@ a complete guide to using Macaroons.Net.
 * E-mail: jw@fjeldgruppen.dk
 * Twitter: @JornWildt
 
-## Dependencies
+## Credits
+Thanks to Robert Escriva for making the C implementation public.
+
+Thanks to [cBrain](http://cbrain.com/) for donating a few working hours for this implementation.
+
 Macaroons.net depends on the following libraries:
 
   * CuttingEdge.Condition
@@ -44,4 +48,3 @@ Macaroons.net depends on the following libraries:
 Macaroons.Net is distributed under the MIT License: http://www.opensource.org/licenses/MIT
 A copy of this license is included in the file LICENSE.TXT
 
-[1] http://research.google.com/pubs/pub41892.html
