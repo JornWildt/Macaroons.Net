@@ -1,12 +1,11 @@
 ﻿using NUnit.Framework;
-using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 
 
 namespace Macaroons.Net.Tests
 {
-  // These tests just through the examples from the tutorial on 
+  // These tests go through the examples from the tutorial on 
   // the original libmacaroons GitHub page at https://github.com/rescrv/libmacaroons
 
   [TestFixture]
