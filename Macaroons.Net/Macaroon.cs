@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Remoting.Metadata.W3cXsd2001;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -12,34 +11,29 @@ namespace Macaroons
 {
   public class Macaroon
   {
+    static CryptoAlgorithm Crypto = new SecretBoxCryptoAlgorithm();
+
+
     #region Constants
 
+    /// <summary>
+    /// Number of bytes in generated hash values.
+    /// </summary>
     public const int MACAROON_HASH_BYTES = 32;
-    public const int MACAROON_SECRET_KEY_BYTES = 32;
-    public const int MACAROON_SECRET_NONCE_BYTES = 24;
 
-    /*
-     * The number of zero bytes required by crypto_secretbox
-     * before the plaintext.
-     */
-    public const int MACAROON_SECRET_TEXT_ZERO_BYTES = 32;
-
-    /*
-     * The number of zero bytes placed by crypto_secretbox
-     * before the ciphertext
-     */
-    public const int MACAROON_SECRET_BOX_ZERO_BYTES = 16;
-
-    public const int SECRET_BOX_OVERHEAD = MACAROON_SECRET_TEXT_ZERO_BYTES - MACAROON_SECRET_BOX_ZERO_BYTES;
-    public const int VID_NONCE_KEY_SZ = MACAROON_SECRET_NONCE_BYTES + MACAROON_HASH_BYTES + SECRET_BOX_OVERHEAD;
-
-
+    /// <summary>
+    /// Max length of "strings" used for identifiers and locations. A bit misleading when using UTF8 encodings.
+    /// </summary>
     public const int MACAROON_MAX_STRLEN = 32768;
 
-    /* Place a sane limit on the number of caveats */
+    /// <summary>
+    /// Max allowed number of caveats.
+    /// </summary>
     public const int MACAROON_MAX_CAVEATS = 65536;
 
-    /* Recommended secret length */
+    /// <summary>
+    /// Recommended secret length (should match hash length, otherwise the "derived key" will have the wrong size).
+    /// </summary>
     public const int MACAROON_SUGGESTED_SECRET_LENGTH = 32;
 
     #endregion
@@ -186,37 +180,14 @@ namespace Macaroons
       Condition.Requires(key, "key").IsNotNull().DataSizeEquals(MACAROON_SUGGESTED_SECRET_LENGTH);
       Condition.Requires(CaveatsList.Count + 1, "Number of caveats").IsLessThan(MACAROON_MAX_CAVEATS);
 
-      byte[] enc_nonce = new byte[MACAROON_SECRET_NONCE_BYTES];
-
-      // Encrypt the secret key using the current signature as encryption key. The nonce is a parameter for SecretBox encryption.
-      byte[] cipherText = SecretBoxCreate(Signature.Data, enc_nonce, key.Data);
-
-      // Create "vid" as the concatenation of the nonce and the cipher text (without the prefixed zero bytes from the encryption algorithm)
-      byte[] vid = new byte[MACAROON_SECRET_NONCE_BYTES + cipherText.Length - MACAROON_SECRET_BOX_ZERO_BYTES];
-      Buffer.BlockCopy(enc_nonce, 0, vid, 0, MACAROON_SECRET_NONCE_BYTES);
-      Buffer.BlockCopy(cipherText, MACAROON_SECRET_BOX_ZERO_BYTES, vid, MACAROON_SECRET_NONCE_BYTES, cipherText.Length - MACAROON_SECRET_BOX_ZERO_BYTES);
+      // Encrypt the secret root key using the current signature as encryption key.
+      byte[] vid = Crypto.Encrypt(Signature.Data, key.Data);
 
       Packet newSig = CalculateHash2(Signature, new Packet(vid, DataEncoding.Base64UrlSafe), identifier);
 
       CaveatsList.Add(new Caveat(identifier, new Packet(vid, DataEncoding.Base64UrlSafe), location));
 
       Signature = newSig;
-    }
-
-
-    // FIXME: move else where (make configurable?)
-
-    protected byte[] SecretBoxCreate(byte[] key, byte[] nonce, byte[] plainText)
-    {
-      byte[] cipherText = Sodium.SecretBox.Create(plainText, nonce, key);
-      return cipherText;
-    }
-
-
-    protected Packet SecretBoxOpen(byte[] key, byte[] nonce, byte[] cipherText)
-    {
-      byte[] plainText = Sodium.SecretBox.Open(cipherText, nonce, key);
-      return new Packet(plainText, DataEncoding.Hex);
     }
 
 
@@ -342,14 +313,9 @@ namespace Macaroons
       if (treePath.Contains(discharge))
           return new VerificationResult(string.Format("A circular discharge macaroon reference was found for caveat '{0}'", c));
 
-      // Extract nonce and encrypted root key cipher text from VId. Remember to add SecretBox zero padding
-      byte[] nonce = new byte[MACAROON_SECRET_NONCE_BYTES];
-      Buffer.BlockCopy(c.VId.Data, 0, nonce, 0, MACAROON_SECRET_NONCE_BYTES);
-      byte[] cipherText = new byte[c.VId.Length - MACAROON_SECRET_NONCE_BYTES + MACAROON_SECRET_BOX_ZERO_BYTES];
-      Buffer.BlockCopy(c.VId.Data, MACAROON_SECRET_NONCE_BYTES, cipherText, MACAROON_SECRET_BOX_ZERO_BYTES, c.VId.Length - MACAROON_SECRET_NONCE_BYTES);
-
       // Decrypt root key for discharge macaroon
-      Packet key = SecretBoxOpen(csig.Data, nonce, cipherText);
+      byte[] keyData = Crypto.Decrypt(csig.Data, c.VId.Data);
+      Packet key = new Packet(keyData, DataEncoding.Hex);
 
       // Keep track of visited discharge macaroons
       treePath.Push(discharge);
@@ -484,28 +450,31 @@ namespace Macaroons
     #endregion
 
 
-    #region Internal
+    #region Internal utility methods
 
-    internal Packet GenerateDerivedKey(Packet key)
+    private static byte[] MacaroonsKeyGeneratorSecret = Encoding.ASCII.GetBytes("macaroons-key-generator");
+
+
+    protected Packet GenerateDerivedKey(Packet key)
     {
       Condition.Requires(key, "key").IsNotNull();
 
       // Generate derived key as a hash of a hard coded "secret" value and the original key.
       byte[] genkey = new byte[MACAROON_HASH_BYTES];
-      byte[] mkeygen = Encoding.ASCII.GetBytes("macaroons-key-generator");
+      byte[] mkeygen = MacaroonsKeyGeneratorSecret;
       Buffer.BlockCopy(mkeygen, 0, genkey, 0, mkeygen.Length);
 
       return CalculateHash1(genkey, key.Data);
     }
 
 
-    internal Packet CalculateHash1(Packet key, Packet p)
+    protected Packet CalculateHash1(Packet key, Packet p)
     {
       return CalculateHash1(key.Data, p.Data);
     }
 
 
-    internal Packet CalculateHash1(byte[] key, byte[] data)
+    protected Packet CalculateHash1(byte[] key, byte[] data)
     {
       using (HMACSHA256 alg = new HMACSHA256(key))
       {
@@ -515,7 +484,7 @@ namespace Macaroons
     }
 
 
-    internal Packet CalculateHash2(Packet key, Packet data1, Packet data2)
+    protected Packet CalculateHash2(Packet key, Packet data1, Packet data2)
     {
       using (HMACSHA256 alg = new HMACSHA256(key.Data))
       {

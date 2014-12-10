@@ -20,8 +20,9 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
-    <DocumentationFile>bin\Debug\Macaroons.Net.XML</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <DocumentationFile>
+    </DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -48,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Base64UrlSafeDataEncoding.cs" />
+    <Compile Include="CryptoAlgorithm.cs" />
     <Compile Include="HexDataEncoding.cs" />
     <Compile Include="Caveat.cs" />
     <Compile Include="DataEncoding.cs" />
@@ -57,6 +59,7 @@
     <Compile Include="PacketReader.cs" />
     <Compile Include="PacketWriter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SecretBoxCryptoAlgorithm.cs" />
     <Compile Include="SerializationOptions.cs" />
     <Compile Include="TextDataEncoding.cs" />
     <Compile Include="Utility.cs" />
