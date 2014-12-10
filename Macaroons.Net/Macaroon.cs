@@ -245,11 +245,12 @@ namespace Macaroons
     /// Verify this macaroon with respect to a set of valid predicates and a set of discharge macaroons.
     /// </summary>
     /// <param name="v">Verifier containing all valid first party caveat predicates.</param>
-    /// <param name="key">Authorizating macaroon root key.</param>
+    /// <param name="key">Authorization macaroon root key.</param>
     /// <param name="ms">List of all discharging macaroons.</param>
-    /// <returns></returns>
+    /// <returns>Result of verification</returns>
     public VerificationResult Verify(Verifier v, string key, List<Macaroon> ms = null)
     {
+      Condition.Requires(v, "v").IsNotNull();
       Condition.Requires(key, "key").IsNotNull();
 
       return Verify(v, new Packet(key), ms);

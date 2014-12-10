@@ -50,6 +50,34 @@ namespace Macaroons
       VerifierCallbacks.Add(verifier);
     }
 
+
+    /// <summary>
+    /// Verify macaroon with respect to the verifier's set of valid predicates and a set of discharge macaroons.
+    /// </summary>
+    /// <param name="m"></param>
+    /// <param name="key"></param>
+    /// <param name="ms"></param>
+    /// <returns></returns>
+    public VerificationResult Verify(Macaroon m, string key, List<Macaroon> ms = null)
+    {
+      Condition.Requires(m, "m").IsNotNull();
+      Condition.Requires(key, "key").IsNotNull();
+
+      return m.Verify(this, key, ms);
+    }
+
+
+    /// <summary>
+    /// Verify macaroon with respect to the verifier's set of valid predicates and a set of discharge macaroons.
+    /// </summary>
+    public VerificationResult Verify(Macaroon m, Packet key, List<Macaroon> ms = null)
+    {
+      Condition.Requires(m, "m").IsNotNull();
+      Condition.Requires(key, "key").IsNotNull();
+
+      return m.Verify(this, key, ms);
+    }
+
     
     public bool IsValidFirstPartyCaveat(Packet cid)
     {

@@ -51,7 +51,7 @@ namespace Walkthrough
       Console.WriteLine(m.Inspect());
 
       Verifier v = new Verifier();
-      var result = m.Verify(v, secret);
+      var result = v.Verify(m, secret);
       Console.WriteLine("Success: {0}", result.Success);
 
       v.SatisfyExact("account = 3735928559");
@@ -67,28 +67,28 @@ namespace Walkthrough
 
       v.SatisfyGeneral(CheckTime);
       
-      result = m.Verify(v, secret);
+      result = v.Verify(m, secret);
       Console.WriteLine("Success: {0}", result.Success);
 
       Macaroon n = new Macaroon(m).AddFirstPartyCaveat("action = deposit");
-      result = n.Verify(v, secret);
+      result = v.Verify(n, secret);
       Console.WriteLine("Success: {0}", result.Success);
 
       n = new Macaroon(m).AddFirstPartyCaveat("OS = Windows XP");
-      result = n.Verify(v, secret);
+      result = v.Verify(n, secret);
       Console.WriteLine("Success: {0}", result.Success);
 
       n = new Macaroon(m).AddFirstPartyCaveat("time < 2014-01-01T00:00");
-      result = n.Verify(v, secret);
+      result = v.Verify(n, secret);
       Console.WriteLine("Success: {0}", result.Success);
 
-      result = m.Verify(v, "this is not the secret we were looking for");
+      result = v.Verify(m, "this is not the secret we were looking for");
       Console.WriteLine("Success: {0}", result.Success);
 
       n = Macaroon.Deserialize("MDAxY2xvY2F0aW9uIGh0dHA6Ly9teWJhbmsvCjAwMjZpZGVudGlmaWVyIHdlIHVzZWQgb3VyIHNlY3JldCBrZXkKMDAxZGNpZCBhY2NvdW50ID0gMzczNTkyODU1OQowMDIwY2lkIHRpbWUgPCAyMDE1LTAxLTAxVDAwOjAwCjAwMjJjaWQgZW1haWwgPSBhbGljZUBleGFtcGxlLm9yZwowMDJmc2lnbmF0dXJlID8f19FL+bkC9p/aoMmIecC7GxdOcLVyUnrv6lJMM7NSCg==", SerializationOptions);
       Console.WriteLine(n.Inspect());
       Console.WriteLine("n.Signature == m.Signature: {0}", m.Signature == n.Signature);
-      result = n.Verify(v, secret);
+      result = v.Verify(n, secret);
       Console.WriteLine("Success: {0}", result.Success);
 
       string location2 = "http://mybank/";
@@ -116,10 +116,10 @@ namespace Walkthrough
       Console.WriteLine(d.Signature);
       Console.WriteLine(dp.Signature);
 
-      result = m.Verify(v, secret2, new List<Macaroon> { dp });
+      result = v.Verify(m, secret2, new List<Macaroon> { dp });
       Console.WriteLine("Success: {0}", result.Success);
 
-      result = m.Verify(v, secret2, new List<Macaroon> { d });
+      result = v.Verify(m, secret2, new List<Macaroon> { d });
       Console.WriteLine("Success: {0}", result.Success);
 
       Console.WriteLine(Macaroon.MACAROON_SUGGESTED_SECRET_LENGTH);
