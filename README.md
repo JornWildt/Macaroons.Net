@@ -11,7 +11,7 @@ compatible with the C implementation.
 
 ## Why Macaroons?
 
-[This text is from the original C implementation by Robert Escriva]
+(*This text is from the original C implementation by Robert Escriva*)
 
 Macaroons are great for authorization because they're similar enough to cookies
 to be immediately usable by developers, but they include several features not
