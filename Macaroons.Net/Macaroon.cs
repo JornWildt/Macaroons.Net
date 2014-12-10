@@ -313,19 +313,26 @@ namespace Macaroons
       if (treePath.Contains(discharge))
           return new VerificationResult(string.Format("A circular discharge macaroon reference was found for caveat '{0}'", c));
 
-      // Decrypt root key for discharge macaroon
-      byte[] keyData = Crypto.Decrypt(csig.Data, c.VId.Data);
-      Packet key = new Packet(keyData, DataEncoding.Hex);
+      try
+      {
+        // Decrypt root key for discharge macaroon
+        byte[] keyData = Crypto.Decrypt(csig.Data, c.VId.Data);
+        Packet key = new Packet(keyData, DataEncoding.Hex);
 
-      // Keep track of visited discharge macaroons
-      treePath.Push(discharge);
+        // Keep track of visited discharge macaroons
+        treePath.Push(discharge);
 
-      // Use the root key to verify discharge macaroon recursively
-      VerificationResult result = discharge.VerifyInner(TM, v, key, ms, treePath);
+        // Use the root key to verify discharge macaroon recursively
+        VerificationResult result = discharge.VerifyInner(TM, v, key, ms, treePath);
 
-      treePath.Pop();
+        treePath.Pop();
 
-      return result;
+        return result;
+      }
+      catch (CryptographicException ex)
+      {
+        return new VerificationResult(ex.Message);
+      }
     }
 
     #endregion
