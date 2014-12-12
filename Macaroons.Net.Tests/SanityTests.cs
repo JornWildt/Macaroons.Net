@@ -16,6 +16,13 @@ namespace Macaroons.Tests
     const string Location2 = "http://mybank/";
 
 
+    [TestFixtureSetUp]
+    public void SetupFixture()
+    {
+      Macaroon.Crypto = new SecretBoxCryptoAlgorithm(false);
+    }
+
+
     [Test]
     public void CanCreateEmptyMacaroonWithSignature()
     {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Cryptography;
 
 
 namespace Macaroons
@@ -10,14 +11,32 @@ namespace Macaroons
     private const int SECRET_BOX_NONCE_BYTES = 24;
 
     
+    public SecretBoxCryptoAlgorithm()
+    {
+    }
+
+
+    public SecretBoxCryptoAlgorithm(bool useRandomNonce)
+    {
+      UseRandomNonce = useRandomNonce;
+    }
+
+
+    protected bool UseRandomNonce = false;
+
+    
     public override byte[] Encrypt(byte[] key, byte[] plainText)
     {
       // Create nonce having all bytes set to zero.
       byte[] nonce = new byte[SECRET_BOX_NONCE_BYTES];
 
-      // FIXME: make this optional
-      //using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
-      //  rng.GetBytes(enc_nonce);
+      // All of the secret box documentation states that it is important to use a random nonce (or avoid reusing nonces completely).
+      // But the original C implemention ignores this so it is made configurable in order to be compatible with that implementation.
+      if (UseRandomNonce)
+      {
+        using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
+          rng.GetBytes(nonce);
+      }
 
       // Created encrypted data including N * zero bytes padding from the secret box algorithm
       byte[] cipherTextPadded = Sodium.SecretBox.Create(plainText, nonce, key);

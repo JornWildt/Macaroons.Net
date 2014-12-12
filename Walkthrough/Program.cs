@@ -12,6 +12,8 @@ namespace Walkthrough
   {
     static void Main(string[] args)
     {
+      Macaroon.Crypto = new SecretBoxCryptoAlgorithm(false);
+
       string secret = "this is our super secret key; only we should know it";
       string pubid = "we used our secret key";
       string location = "http://mybank/";

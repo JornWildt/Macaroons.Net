@@ -11,7 +11,10 @@ namespace Macaroons
 {
   public class Macaroon
   {
-    public static CryptoAlgorithm Crypto = new SecretBoxCryptoAlgorithm();
+    /// <summary>
+    /// Specifies which crypto algorithm to use for third party caveats. Can be set to other algorithms if required.
+    /// </summary>
+    public static CryptoAlgorithm Crypto = new SecretBoxCryptoAlgorithm(true);
 
 
     #region Constants

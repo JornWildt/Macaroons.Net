@@ -29,6 +29,11 @@ create a macaroon like this:
     string secret = "this is our super secret key; only we should know it";
     string pubid = "we used our secret key";
     string location = "http://mybank/";
+    
+    // Make sure secret box encryption is done with nonces containing zero bytes only
+    // - This ensures the signatures are stable for the demo, but it is not recomended.
+    Macaroon.Crypto = new SecretBoxCryptoAlgorithm(false);
+
     Macaroon m = new Macaroon(location, secret, pubid);
 
 We've created our first macaroon!
