@@ -11,7 +11,7 @@ namespace Macaroons
 {
   public class Macaroon
   {
-    static CryptoAlgorithm Crypto = new SecretBoxCryptoAlgorithm();
+    public static CryptoAlgorithm Crypto = new SecretBoxCryptoAlgorithm();
 
 
     #region Constants

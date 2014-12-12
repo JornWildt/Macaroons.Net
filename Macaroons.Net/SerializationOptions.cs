@@ -9,8 +9,8 @@
 
     public static readonly SerializationOptions Default = new SerializationOptions
     {
-      MacaroonIdentifierEncoding = DataEncoding.Hex,
-      CaveatIdentifierEncoding = DataEncoding.Hex
+      MacaroonIdentifierEncoding = DataEncoding.UTF8,
+      CaveatIdentifierEncoding = DataEncoding.UTF8
     };
   }
 }

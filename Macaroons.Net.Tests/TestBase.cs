@@ -27,12 +27,5 @@ namespace Macaroons.Tests
       DateTime t = DateTime.Parse(caveat.Substring(7));
       return DateTime.Now < t;
     }
-
-
-    public static readonly SerializationOptions DebugSerializationOptions = new SerializationOptions
-    {
-      MacaroonIdentifierEncoding = DataEncoding.UTF8,
-      CaveatIdentifierEncoding = DataEncoding.UTF8
-    };
   }
 }

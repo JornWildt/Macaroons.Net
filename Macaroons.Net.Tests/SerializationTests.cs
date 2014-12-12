@@ -45,7 +45,7 @@ namespace Macaroons.Tests
       string serialized = "MDAxY2xvY2F0aW9uIGh0dHA6Ly9teWJhbmsvCjAwMjZpZGVudGlmaWVyIHdlIHVzZWQgb3VyIHNlY3JldCBrZXkKMDAyZnNpZ25hdHVyZSDj2eApCFJsTAA5rhURQRXZf91ovyujebNCqvD2F9BVLwo";
       
       // Act
-      Macaroon m = Macaroon.Deserialize(serialized, DebugSerializationOptions);
+      Macaroon m = Macaroon.Deserialize(serialized);
 
       // Assert
       Assert.AreEqual(Location, m.Location.ToString());
@@ -62,7 +62,7 @@ namespace Macaroons.Tests
       string serialized = "MDAxY2xvY2F0aW9uIGh0dHA6Ly9teWJhbmsvCjAwMjZpZGVudGlmaWVyIHdlIHVzZWQgb3VyIHNlY3JldCBrZXkKMDAxZGNpZCBhY2NvdW50ID0gMzczNTkyODU1OQowMDIwY2lkIHRpbWUgPCAyMDE1LTAxLTAxVDAwOjAwCjAwMjJjaWQgZW1haWwgPSBhbGljZUBleGFtcGxlLm9yZwowMDJmc2lnbmF0dXJlID8f19FL+bkC9p/aoMmIecC7GxdOcLVyUnrv6lJMM7NSCg==";
 
       // Act
-      Macaroon m = Macaroon.Deserialize(serialized, DebugSerializationOptions);
+      Macaroon m = Macaroon.Deserialize(serialized);
 
       // Assert
       Assert.AreEqual(Location, m.Location.ToString());
@@ -87,7 +87,7 @@ namespace Macaroons.Tests
 
       // Act
       string s = m1.Serialize();
-      Macaroon m2 = Macaroon.Deserialize(s, DebugSerializationOptions);
+      Macaroon m2 = Macaroon.Deserialize(s);
 
       // Assert
       Assert.AreEqual(m1.Location, m2.Location);

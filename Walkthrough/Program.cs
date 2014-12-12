@@ -12,12 +12,6 @@ namespace Walkthrough
   {
     static void Main(string[] args)
     {
-      var SerializationOptions = new SerializationOptions 
-      { 
-        CaveatIdentifierEncoding = DataEncoding.UTF8,
-        MacaroonIdentifierEncoding = DataEncoding.UTF8
-      };
-
       string secret = "this is our super secret key; only we should know it";
       string pubid = "we used our secret key";
       string location = "http://mybank/";
@@ -47,7 +41,7 @@ namespace Walkthrough
       // Send to bank
       // Receive again
 
-      m = Macaroon.Deserialize(msg, SerializationOptions);
+      m = Macaroon.Deserialize(msg);
       Console.WriteLine(m.Inspect());
 
       Verifier v = new Verifier();
@@ -85,7 +79,7 @@ namespace Walkthrough
       result = v.Verify(m, "this is not the secret we were looking for");
       Console.WriteLine("Success: {0}", result.Success);
 
-      n = Macaroon.Deserialize("MDAxY2xvY2F0aW9uIGh0dHA6Ly9teWJhbmsvCjAwMjZpZGVudGlmaWVyIHdlIHVzZWQgb3VyIHNlY3JldCBrZXkKMDAxZGNpZCBhY2NvdW50ID0gMzczNTkyODU1OQowMDIwY2lkIHRpbWUgPCAyMDE1LTAxLTAxVDAwOjAwCjAwMjJjaWQgZW1haWwgPSBhbGljZUBleGFtcGxlLm9yZwowMDJmc2lnbmF0dXJlID8f19FL+bkC9p/aoMmIecC7GxdOcLVyUnrv6lJMM7NSCg==", SerializationOptions);
+      n = Macaroon.Deserialize("MDAxY2xvY2F0aW9uIGh0dHA6Ly9teWJhbmsvCjAwMjZpZGVudGlmaWVyIHdlIHVzZWQgb3VyIHNlY3JldCBrZXkKMDAxZGNpZCBhY2NvdW50ID0gMzczNTkyODU1OQowMDIwY2lkIHRpbWUgPCAyMDE1LTAxLTAxVDAwOjAwCjAwMjJjaWQgZW1haWwgPSBhbGljZUBleGFtcGxlLm9yZwowMDJmc2lnbmF0dXJlID8f19FL+bkC9p/aoMmIecC7GxdOcLVyUnrv6lJMM7NSCg==");
       Console.WriteLine(n.Inspect());
       Console.WriteLine("n.Signature == m.Signature: {0}", m.Signature == n.Signature);
       result = v.Verify(n, secret);

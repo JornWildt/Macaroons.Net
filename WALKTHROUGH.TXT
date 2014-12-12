@@ -160,7 +160,7 @@ constructed in the previous section. The first step, of course, is for the bank
 to deserialize the macaroon from the message. This converts the macaroon into a
 form we can work with.
 
-    m = Macaroon.Deserialize(msg, SerializationOptions);
+    m = Macaroon.Deserialize(msg);
     Console.WriteLine(m.Inspect());
     > Location = http://mybank/
     > Identifier = we used our secret key
@@ -326,7 +326,7 @@ The verifier we've built will reject all of these scenarios:
     > Success: False
 
     // Incompetent hackers trying to change the signature
-    n = Macaroon.Deserialize("MDAxY2xvY2F0aW9uIGh0dHA6Ly9teWJhbmsvCjAwMjZpZGVudGlmaWVyIHdlIHVzZWQgb3VyIHNlY3JldCBrZXkKMDAxZGNpZCBhY2NvdW50ID0gMzczNTkyODU1OQowMDIwY2lkIHRpbWUgPCAyMDE1LTAxLTAxVDAwOjAwCjAwMjJjaWQgZW1haWwgPSBhbGljZUBleGFtcGxlLm9yZwowMDJmc2lnbmF0dXJlID8f19FL+bkC9p/aoMmIecC7GxdOcLVyUnrv6lJMM7NSCg==", SerializationOptions);
+    n = Macaroon.Deserialize("MDAxY2xvY2F0aW9uIGh0dHA6Ly9teWJhbmsvCjAwMjZpZGVudGlmaWVyIHdlIHVzZWQgb3VyIHNlY3JldCBrZXkKMDAxZGNpZCBhY2NvdW50ID0gMzczNTkyODU1OQowMDIwY2lkIHRpbWUgPCAyMDE1LTAxLTAxVDAwOjAwCjAwMjJjaWQgZW1haWwgPSBhbGljZUBleGFtcGxlLm9yZwowMDJmc2lnbmF0dXJlID8f19FL+bkC9p/aoMmIecC7GxdOcLVyUnrv6lJMM7NSCg==");
     Console.WriteLine(n.Inspect());
     > Location = http://mybank/
     > Identifier = we used our secret key
