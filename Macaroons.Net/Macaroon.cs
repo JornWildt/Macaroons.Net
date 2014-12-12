@@ -362,7 +362,22 @@ namespace Macaroons
 
     public string Serialize()
     {
+      return Utility.ToBase64UrlSafe(SerializeToBytes());
+    }
+
+
+    public byte[] SerializeToBytes()
+    {
       using (MemoryStream s = new MemoryStream())
+      {
+        Serialize(s);
+        return s.ToArray();
+      }
+    }
+
+
+    public void Serialize(Stream s)
+    {
       using (PacketWriter w = new PacketWriter(s))
       {
         w.WriteLocationPacket(Location);
@@ -378,20 +393,30 @@ namespace Macaroons
         }
 
         w.WriteSignaturePacket(Signature);
-
-        return Utility.ToBase64UrlSafe(s.ToArray());
       }
     }
 
 
     public static Macaroon Deserialize(string s, SerializationOptions options = null)
     {
+      byte[] data = Utility.FromBase64UrlSafe(s);
+      return Deserialize(data);
+    }
+
+
+    public static Macaroon Deserialize(byte[] data, SerializationOptions options = null)
+    {
+      using (MemoryStream m = new MemoryStream(data))
+        return Deserialize(m, options);
+    }
+
+
+    public static Macaroon Deserialize(Stream m, SerializationOptions options = null)
+    {
       if (options == null)
         options = SerializationOptions.Default;
 
-      byte[] data = Utility.FromBase64UrlSafe(s);
-      using (MemoryStream m = new MemoryStream(data))
-      using (PacketReader r = new PacketReader(m,options))
+      using (PacketReader r = new PacketReader(m, options))
       {
         Packet location = r.ReadLocationPacket();
         Packet identifier = r.ReadIdentifierPacket();
