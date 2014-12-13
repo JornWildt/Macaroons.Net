@@ -4,18 +4,28 @@ using System.Security.Cryptography;
 
 namespace Macaroons
 {
+  /// <summary>
+  /// Representing algorithms for encrypting and decrypting data using the Secret Box algorithm.
+  /// </summary>
   public class SecretBoxCryptoAlgorithm : CryptoAlgorithm
   {
     private const int SECRET_BOX_ZERO_BYTES = 16;
 
     private const int SECRET_BOX_NONCE_BYTES = 24;
 
-    
+
+    /// <summary>
+    /// Initialize crypto algorithm configured to use a random nonce.
+    /// </summary>
     public SecretBoxCryptoAlgorithm()
     {
     }
 
 
+    /// <summary>
+    /// Initialize crypto algorithm with nonce usage as specified.
+    /// </summary>
+    /// <param name="useRandomNonce">Use random nonce for encryption (true) or all zeros nonce (false).</param>
     public SecretBoxCryptoAlgorithm(bool useRandomNonce)
     {
       UseRandomNonce = useRandomNonce;
@@ -25,6 +35,12 @@ namespace Macaroons
     protected bool UseRandomNonce = false;
 
     
+    /// <summary>
+    /// Encrypt plain text data using the given secret key.
+    /// </summary>
+    /// <param name="key">Secret key.</param>
+    /// <param name="plainText">Plain text data.</param>
+    /// <returns>Generated nonce plus encrypted cipher text in one single cipher block.</returns>
     public override byte[] Encrypt(byte[] key, byte[] plainText)
     {
       // Create nonce having all bytes set to zero.
@@ -50,6 +66,12 @@ namespace Macaroons
     }
 
 
+    /// <summary>
+    /// Decrypt cipher text using the given secret key.
+    /// </summary>
+    /// <param name="key">Secret key.</param>
+    /// <param name="cipherBlock">Nonce and cipher text in one single cipher block.</param>
+    /// <returns>Decrypted plain text.</returns>
     public override byte[] Decrypt(byte[] key, byte[] cipherBlock)
     {
       // Extract nonce from cipher block.

@@ -29,7 +29,7 @@ namespace Macaroons
     /// <summary>
     /// Add string representation of a predicate.
     /// </summary>
-    /// <param name="predicate"></param>
+    /// <param name="predicate">The predicate.</param>
     public void SatisfyExact(string predicate)
     {
       Condition.Requires(predicate, "predicate").IsNotNull();
@@ -37,6 +37,10 @@ namespace Macaroons
     }
 
 
+    /// <summary>
+    /// Add binary representation of predicate.
+    /// </summary>
+    /// <param name="predicate">The predicate.</param>
     public void SatisfyExact(Packet predicate)
     {
       Condition.Requires(predicate, "predicate");

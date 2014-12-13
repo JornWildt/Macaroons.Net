@@ -44,14 +44,33 @@ namespace Macaroons
 
     #region Public properties
 
+    /// <summary>
+    /// A hint to the macaroon's target location. Usually a human readable string.
+    /// </summary>
     public Packet Location { get; protected set; }
 
+
+    /// <summary>
+    /// Macaroon identifier. Sometimes a human readable string - but can for instance also be binary cipher text.
+    /// </summary>
     public Packet Identifier { get; protected set; }
 
+    
+    /// <summary>
+    /// Macaroon signature over the identifier and all contained caveats.
+    /// </summary>
     public Packet Signature { get; protected set; }
 
+
+    /// <summary>
+    /// Read only list of all caveats.
+    /// </summary>
     public IList<Caveat> Caveats { get { return CaveatsList.AsReadOnly(); } }
 
+
+    /// <summary>
+    /// Selection of all third party caveats.
+    /// </summary>
     public IEnumerable<Caveat> ThirdPartyCaveats { get { return Caveats.Where(c => c.IsThirdPartyCaveat); } }
 
     #endregion
@@ -71,6 +90,37 @@ namespace Macaroons
     }
 
 
+    /// <summary>
+    /// Initializes a macaroon from string representations of location, secret key and identifier.
+    /// </summary>
+    /// <param name="location">Macaroon location hint.</param>
+    /// <param name="key">Secret key.</param>
+    /// <param name="identifier">Macaroon identifier</param>
+    public Macaroon(string location, string key, string identifier)
+    {
+      Condition.Requires(key, "key").IsNotNull();
+      Condition.Requires(identifier, "identifier").IsNotNull();
+
+      Initialize(location != null ? new Packet(location) : null, new Packet(key), new Packet(identifier));
+    }
+
+
+    /// <summary>
+    /// Initializes a macaroon from binary representations of location, secret key and identifier.
+    /// </summary>
+    /// <param name="location">Macaroon location hint.</param>
+    /// <param name="key">Secret key.</param>
+    /// <param name="identifier">Macaroon identifier</param>
+    public Macaroon(Packet location, Packet key, Packet identifier)
+    {
+      Initialize(location, key, identifier);
+    }
+
+
+    /// <summary>
+    /// Initializes a macaroon with a copy of another macaroon.
+    /// </summary>
+    /// <param name="src"></param>
     public Macaroon(Macaroon src)
     {
       Condition.Requires(src, "src").IsNotNull();
@@ -85,21 +135,6 @@ namespace Macaroons
       {
         CaveatsList.Add(new Caveat(c));
       }
-    }
-
-
-    public Macaroon(string location, string key, string identifier)
-    {
-      Condition.Requires(key, "key").IsNotNull();
-      Condition.Requires(identifier, "identifier").IsNotNull();
-
-      Initialize(location != null ? new Packet(location) : null, new Packet(key), new Packet(identifier));
-    }
-
-
-    public Macaroon(Packet location, Packet key, Packet identifier)
-    {
-      Initialize(location, key, identifier);
     }
 
 
@@ -128,6 +163,11 @@ namespace Macaroons
     }
 
 
+    /// <summary>
+    /// Adds a first party caveat predicate to the macaroon.
+    /// </summary>
+    /// <param name="predicate">Caveat predicate represented as a string.</param>
+    /// <returns>Returns this macaroon (not a copy).</returns>
     public Macaroon AddFirstPartyCaveat(string predicate)
     {
       Condition.Requires(predicate, "predicate").IsNotNull();
@@ -138,6 +178,11 @@ namespace Macaroons
     }
 
 
+    /// <summary>
+    /// Adds a first party caveat predicate to the macaroon.
+    /// </summary>
+    /// <param name="predicate">Caveat predicate represented as binary data.</param>
+    /// <returns>Returns this macaroon (not a copy).</returns>
     public Macaroon AddFirstPartyCaveat(Packet predicate)
     {
       Condition.Requires(Signature != null  &&  Signature.Length > PacketSerializerBase.PACKET_PREFIX).IsTrue();
@@ -153,6 +198,13 @@ namespace Macaroons
     }
 
 
+    /// <summary>
+    /// Adds a third party caveat predicate to the macaroon.
+    /// </summary>
+    /// <param name="location">Hint to the discharge location.</param>
+    /// <param name="key">Caveat secret key.</param>
+    /// <param name="identifier">Identifier for looking up secret at discharging service.</param>
+    /// <returns>Returns this macaroon (not a copy).</returns>
     public Macaroon AddThirdPartyCaveat(string location, string key, string identifier)
     {
       Condition.Requires(identifier, "identifier").IsNotNull();
@@ -164,6 +216,13 @@ namespace Macaroons
     }
 
 
+    /// <summary>
+    /// Adds a third party caveat predicate to the macaroon.
+    /// </summary>
+    /// <param name="location">Hint to the discharge location.</param>
+    /// <param name="key">Caveat secret key.</param>
+    /// <param name="identifier">Identifier for looking up secret at discharging service.</param>
+    /// <returns>Returns this macaroon (not a copy).</returns>
     public Macaroon AddThirdPartyCaveat(Packet location, Packet key, Packet identifier)
     {
       Condition.Requires(key, "key").IsNotNull();
@@ -194,6 +253,11 @@ namespace Macaroons
     }
 
 
+    /// <summary>
+    /// Prepare this macaroon for request by binding it to the authorizing macaroon.
+    /// </summary>
+    /// <param name="d">Authorizing macaroon</param>
+    /// <returns>A new bound discharge macaroon ready for sending along with the authorizing macaroon.</returns>
     public Macaroon PrepareForRequest(Macaroon d)
     {
       Packet boundSignature = Bind(Signature, d.Signature);
@@ -219,9 +283,9 @@ namespace Macaroons
     /// Verify this macaroon with respect to a set of valid predicates and a set of discharge macaroons.
     /// </summary>
     /// <param name="v">Verifier containing all valid first party caveat predicates.</param>
-    /// <param name="key">Authorization macaroon root key.</param>
-    /// <param name="ms">List of all discharging macaroons.</param>
-    /// <returns>Result of verification</returns>
+    /// <param name="key">Authorizing macaroon root key.</param>
+    /// <param name="ms">List of discharging macaroons.</param>
+    /// <returns>Result of verification.</returns>
     public VerificationResult Verify(Verifier v, string key, List<Macaroon> ms = null)
     {
       Condition.Requires(v, "v").IsNotNull();
@@ -230,7 +294,14 @@ namespace Macaroons
       return Verify(v, new Packet(key), ms);
     }
 
-    
+
+    /// <summary>
+    /// Verify this macaroon with respect to a set of valid predicates and a set of discharge macaroons.
+    /// </summary>
+    /// <param name="v">Verifier containing all valid first party caveat predicates.</param>
+    /// <param name="key">Authorizing macaroon root key.</param>
+    /// <param name="ms">List of discharging macaroons.</param>
+    /// <returns>Result of verification.</returns>
     public VerificationResult Verify(Verifier v, Packet key, List<Macaroon> ms = null)
     {
       if (ms == null)
@@ -349,6 +420,10 @@ namespace Macaroons
     }
 
 
+    /// <summary>
+    /// Return string representation of all content in this macaroon.
+    /// </summary>
+    /// <returns></returns>
     public string Inspect()
     {
       using (StringWriter w = new StringWriter())
@@ -363,12 +438,20 @@ namespace Macaroons
     }
 
 
+    /// <summary>
+    /// Serialize this macaroon to a string. The string is safe for use in URLs as it is based on the BASE64 URL Safe encoding.
+    /// </summary>
+    /// <returns>Result of serialization.</returns>
     public string Serialize()
     {
       return Utility.ToBase64UrlSafe(SerializeToBytes());
     }
 
 
+    /// <summary>
+    /// Serialize this macaroon to a byte array.
+    /// </summary>
+    /// <returns>Result of serialization.</returns>
     public byte[] SerializeToBytes()
     {
       using (MemoryStream s = new MemoryStream())
@@ -379,6 +462,10 @@ namespace Macaroons
     }
 
 
+    /// <summary>
+    /// Serialize this macaroon to a stream.
+    /// </summary>
+    /// <param name="s">Output stream.</param>
     public void Serialize(Stream s)
     {
       using (PacketWriter w = new PacketWriter(s))
@@ -400,6 +487,12 @@ namespace Macaroons
     }
 
 
+    /// <summary>
+    /// Deserialize a string into a macaroon.
+    /// </summary>
+    /// <param name="s">Input string.</param>
+    /// <param name="options">Serialization options.</param>
+    /// <returns>Deserialized macaroon.</returns>
     public static Macaroon Deserialize(string s, SerializationOptions options = null)
     {
       byte[] data = Utility.FromBase64UrlSafe(s);
@@ -407,6 +500,12 @@ namespace Macaroons
     }
 
 
+    /// <summary>
+    /// Deserialize a byte array into a macaroon.
+    /// </summary>
+    /// <param name="data">Input bytes.</param>
+    /// <param name="options">Serialization options.</param>
+    /// <returns>Deserialized macaroon.</returns>
     public static Macaroon Deserialize(byte[] data, SerializationOptions options = null)
     {
       using (MemoryStream m = new MemoryStream(data))
@@ -414,12 +513,18 @@ namespace Macaroons
     }
 
 
-    public static Macaroon Deserialize(Stream m, SerializationOptions options = null)
+    /// <summary>
+    /// Deserialize macaroon from a stream.
+    /// </summary>
+    /// <param name="s">Input stream.</param>
+    /// <param name="options">Serialization options.</param>
+    /// <returns>Deserialized macaroon.</returns>
+    public static Macaroon Deserialize(Stream s, SerializationOptions options = null)
     {
       if (options == null)
         options = SerializationOptions.Default;
 
-      using (PacketReader r = new PacketReader(m, options))
+      using (PacketReader r = new PacketReader(s, options))
       {
         Packet location = r.ReadLocationPacket();
         Packet identifier = r.ReadIdentifierPacket();
