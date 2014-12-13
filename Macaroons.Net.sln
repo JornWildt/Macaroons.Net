@@ -9,6 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Walkthrough", "Walkthrough\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{EDD5A02F-4D6E-49B7-922C-9C361C38DF4A}"
 	ProjectSection(SolutionItems) = preProject
+		CODEBASE.TXT = CODEBASE.TXT
 		LICENSE.TXT = LICENSE.TXT
 		README.md = README.md
 		WALKTHROUGH.TXT = WALKTHROUGH.TXT

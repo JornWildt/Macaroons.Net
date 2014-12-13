@@ -1,0 +1,45 @@
+Macaroons.Net
+=============
+
+This is a short overview of the classes and methods available in Macaroons.Net.
+See also WALKTHROUGH.TXT for a complete introduction to macaroons.
+
+Macaroon
+--------
+This is the class that represents a single macaroon. You can create new 
+instances, add first party as well as third party caveats, serialize and 
+deserialize it, inspect it and verify it.
+
+Caveat
+------
+This class represents a single first party or third party caveat.
+
+Verifier
+--------
+This class stores valid predicates used to verify macaroons.
+
+Packet
+------
+This class represents a blob of data, a byte array, together with an encoding
+that takes care of converting the data to and from a textual representation.
+
+PacketReader/PacketWriter
+-------------------------
+These two classes are used to serialize and deserialize macaroons.
+
+DataEncoding
+------------
+This class represents a textual encoding of a byte array. An encoding can 
+convert between byte arrays and strings. Macaroons.Net has an initial set of
+encodings available:
+
+- Base64UrlSafeDataEncoding: encoding bytes as BASE64 URL safe strings.
+- HexDataEncoding: encoding bytes as hexadecimal strings.
+- TextDataEncoding: encoding bytes using different standard text encodings such
+  as UTF8 and ASCII.
+
+CryptoAlgorithm
+---------------
+Represents an algorithm for encrypting and decrypting data. The default 
+algorithm is using Secret Box encryption.
+

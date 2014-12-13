@@ -6,6 +6,8 @@ Macaroons.Net.
 
 All these examples are included in the "Walkthrough" project.
 
+See also CODEBASE.TXT for a short introduction to the code base.
+
 Installing Macaroons
 --------------------
 
