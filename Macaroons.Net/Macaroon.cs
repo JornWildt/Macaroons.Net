@@ -495,6 +495,7 @@ namespace Macaroons
     /// <returns>Deserialized macaroon.</returns>
     public static Macaroon Deserialize(string s, SerializationOptions options = null)
     {
+      Condition.Requires(s, "s").IsNotNullOrEmpty();
       byte[] data = Utility.FromBase64UrlSafe(s);
       return Deserialize(data);
     }
