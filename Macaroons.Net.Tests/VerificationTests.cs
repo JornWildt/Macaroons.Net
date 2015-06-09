@@ -46,12 +46,12 @@ namespace Macaroons.Tests
       // Arrange
       Macaroon m = new Macaroon(Location, Secret, Identifier);
       m.AddFirstPartyCaveat("account = 3735928559");
-      m.AddFirstPartyCaveat("time < 2015-01-01T00:00");
+      m.AddFirstPartyCaveat("time < 2115-01-01T00:00");
       m.AddFirstPartyCaveat("email = alice@example.org");
 
       Verifier v = new Verifier();
       v.SatisfyExact("account = 3735928559");
-      v.SatisfyExact("time < 2015-01-01T00:00");
+      v.SatisfyExact("time < 2115-01-01T00:00");
       v.SatisfyExact("email = alice@example.org");
 
       // Act
@@ -67,7 +67,7 @@ namespace Macaroons.Tests
     {
       // Arrange
       Macaroon mSuccess = new Macaroon(Location, Secret, Identifier);
-      mSuccess.AddFirstPartyCaveat("time < 2015-01-01T00:00");
+      mSuccess.AddFirstPartyCaveat("time < 2115-01-01T00:00");
 
       Macaroon mFailure = new Macaroon(Location, Secret, Identifier);
       mFailure.AddFirstPartyCaveat("time < 2000-01-01T00:00");
@@ -136,7 +136,7 @@ namespace Macaroons.Tests
       // Arrange
       Macaroon mValid = new Macaroon(Location, Secret, Identifier);
       mValid.AddFirstPartyCaveat("account = 3735928559");
-      mValid.AddFirstPartyCaveat("time < 2015-01-01T00:00");
+      mValid.AddFirstPartyCaveat("time < 2115-01-01T00:00");
       mValid.AddFirstPartyCaveat("email = alice@example.org");
 
       // This is a Macaroon from the tutorial (https://github.com/rescrv/libmacaroons) containing an invalid signature 
@@ -145,7 +145,7 @@ namespace Macaroons.Tests
 
       Verifier v = new Verifier();
       v.SatisfyExact("account = 3735928559");
-      v.SatisfyExact("time < 2015-01-01T00:00");
+      v.SatisfyExact("time < 2115-01-01T00:00");
       v.SatisfyExact("email = alice@example.org");
 
       // Act
@@ -159,8 +159,9 @@ namespace Macaroons.Tests
       Assert.AreNotEqual(mValid.Signature, mInvalid.Signature);
       Assert.IsTrue(verifiedOk.Success);
       Assert.IsFalse(verifiedFails.Success);
-      Assert.AreEqual(1, verifiedFails.Messages.Count);
-      StringAssert.Contains("Signature mismatch", verifiedFails.Messages[0]);
+      Assert.AreEqual(2, verifiedFails.Messages.Count);
+      StringAssert.Contains("Caveat 'time < 2015-01-01T00:00' failed", verifiedFails.Messages[0]);
+      StringAssert.Contains("Signature mismatch", verifiedFails.Messages[1]);
     }
 
 
@@ -185,7 +186,7 @@ namespace Macaroons.Tests
 
       // - Create discharge macaroon (1)
       Macaroon d1 = new Macaroon("http://auth.mybank/", caveat_key1, identifier1);
-      d1.AddFirstPartyCaveat("time < 2015-01-01T00:00");
+      d1.AddFirstPartyCaveat("time < 2115-01-01T00:00");
       Macaroon dp1 = m.PrepareForRequest(d1);
 
       // - Create discharge macaroon (2)
@@ -226,7 +227,7 @@ namespace Macaroons.Tests
 
       // - Create discharge macaroon (1)
       Macaroon d1 = new Macaroon("http://auth.mybank/", caveat_key1, identifier1);
-      d1.AddFirstPartyCaveat("time < 2015-01-01T00:00");
+      d1.AddFirstPartyCaveat("time < 2115-01-01T00:00");
       Macaroon dp1 = m.PrepareForRequest(d1);
 
       // - Create discharge macaroon (2)
@@ -269,7 +270,7 @@ namespace Macaroons.Tests
 
       // - Create discharge macaroon (1)
       Macaroon d1 = new Macaroon("http://auth.mybank/", caveat_key1, identifier1);
-      d1.AddFirstPartyCaveat("time < 2015-01-01T00:00");
+      d1.AddFirstPartyCaveat("time < 2115-01-01T00:00");
       Macaroon dp1 = m.PrepareForRequest(d1);
 
       // - Create discharge macaroon (2)

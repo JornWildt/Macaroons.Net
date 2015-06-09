@@ -362,7 +362,7 @@ namespace Macaroons
 
       bool isValidSignature = (Signature == csig);
       if (!isValidSignature)
-        result.AddFailure("Signature mismatch");
+        result.AddFailure("Signature mismatch for '" + Identifier.ToString() + "'");
 
       return result;
     }
