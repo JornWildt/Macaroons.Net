@@ -537,6 +537,8 @@ namespace Macaroons
         List<Caveat> caveats = new List<Caveat>();
         while (true)
         {
+          bool handled = false;
+
           if (Utility.ByteArrayEquals(PacketSerializerBase.CIdID, packet.Key))
           {
             Packet cid = new Packet(packet.Value, options.CaveatIdentifierEncoding);
@@ -564,6 +566,8 @@ namespace Macaroons
 
             Caveat c = new Caveat(cid, vid, cl);
             caveats.Add(c);
+
+            handled = true;
           }
           
           if (Utility.ByteArrayEquals(PacketSerializerBase.SignatureID, packet.Key))
@@ -573,6 +577,9 @@ namespace Macaroons
             // Done with this package - don't read more packages since signature should be the last one
             break;
           }
+
+          if (!handled)
+            throw new InvalidDataException("Unexpected data in input (did not find Cid or signature).");
         }
 
         if (signature == null)
