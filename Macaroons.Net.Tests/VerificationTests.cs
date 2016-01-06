@@ -328,5 +328,65 @@ namespace Macaroons.Tests
       Assert.AreEqual(2, result.Messages.Count);
       StringAssert.Contains("circular", result.Messages[0]);
     }
+
+
+    [Test]
+    public void FailedVerificationAddsVerifierReason()
+    {
+      // Arrange
+      Macaroon mFailure = new Macaroon(Location, Secret, Identifier);
+      mFailure.AddFirstPartyCaveat("expires: 2000-01-01T00:00:00Z");
+
+      Verifier v = new Verifier();
+      v.SatisfyGeneral(StandardCaveatVerifiers.ExpiresVerifier);
+
+      // Act
+      VerificationResult verified2 = mFailure.Verify(v, Secret);
+
+      // Assert
+      Assert.IsFalse(verified2.Success);
+      Assert.AreEqual(1, verified2.Messages.Count);
+      Assert.AreEqual("Timestamp '2000-01-01T00:00:00Z' has expired", verified2.Messages[0]);
+    }
+
+
+    [Test]
+    public void StandardExpiresVerifierOnlyAcceptsISOTimeStamp()
+    {
+      // Arrange
+      Macaroon mFailure = new Macaroon(Location, Secret, Identifier);
+      mFailure.AddFirstPartyCaveat("expires: 23-12-2000");
+
+      Verifier v = new Verifier();
+      v.SatisfyGeneral(StandardCaveatVerifiers.ExpiresVerifier);
+
+      // Act
+      VerificationResult verified2 = mFailure.Verify(v, Secret);
+
+      // Assert
+      Assert.IsFalse(verified2.Success);
+      Assert.AreEqual(1, verified2.Messages.Count);
+      Assert.AreEqual("Invalid timestamp in 'expires: 23-12-2000'", verified2.Messages[0]);
+    }
+
+
+    [Test]
+    public void StandardExpiresVerifierDoesNotAddReasonWhenNoExpiresCaveatArePresent()
+    {
+      // Arrange
+      Macaroon mFailure = new Macaroon(Location, Secret, Identifier);
+      mFailure.AddFirstPartyCaveat("other: 1234");
+
+      Verifier v = new Verifier();
+      v.SatisfyGeneral(StandardCaveatVerifiers.ExpiresVerifier);
+
+      // Act
+      VerificationResult verified2 = mFailure.Verify(v, Secret);
+
+      // Assert
+      Assert.IsFalse(verified2.Success);
+      Assert.AreEqual(1, verified2.Messages.Count);
+      Assert.AreEqual("Caveat 'other: 1234' failed", verified2.Messages[0]);
+    }
   }
 }

@@ -342,8 +342,14 @@ namespace Macaroons
       {
         if (c.IsFirstPartyCaveat)
         {
-          if (!VerifyInner1st(c,v))
-            result.AddFailure(string.Format("Caveat '{0}' failed", c));
+          string reason;
+          if (!VerifyInner1st(c, v, out reason))
+          {
+            if (reason == null)
+              result.AddFailure(string.Format("Caveat '{0}' failed", c));
+            else
+              result.AddFailure(reason);
+          }
           csig = CalculateHash1(csig, c.CId);
         }
         else
@@ -368,9 +374,9 @@ namespace Macaroons
     }
 
 
-    protected bool VerifyInner1st(Caveat c, Verifier v)
+    protected bool VerifyInner1st(Caveat c, Verifier v, out string reason)
     {
-      return v.IsValidFirstPartyCaveat(c.CId);
+      return v.IsValidFirstPartyCaveat(c.CId, out reason);
     }
 
 

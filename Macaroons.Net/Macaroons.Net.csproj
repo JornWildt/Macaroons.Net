@@ -64,6 +64,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SecretBoxCryptoAlgorithm.cs" />
     <Compile Include="SerializationOptions.cs" />
+    <Compile Include="StandardCaveatVerifiers.cs" />
     <Compile Include="TextDataEncoding.cs" />
     <Compile Include="Utility.cs" />
     <Compile Include="VerificationResult.cs" />

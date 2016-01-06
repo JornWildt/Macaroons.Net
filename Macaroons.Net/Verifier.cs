@@ -13,7 +13,7 @@ namespace Macaroons
   {
     protected List<Packet> Predicates { get; set; }
 
-    protected List<Func<Packet, bool>> VerifierCallbacks { get; set; }
+    protected List<Func<Packet, KeyValuePair<bool,string>>> VerifierCallbacks { get; set; }
 
 
     /// <summary>
@@ -22,7 +22,7 @@ namespace Macaroons
     public Verifier()
     {
       Predicates = new List<Packet>();
-      VerifierCallbacks = new List<Func<Packet, bool>>();
+      VerifierCallbacks = new List<Func<Packet, KeyValuePair<bool, string>>>();
     }
 
 
@@ -51,7 +51,34 @@ namespace Macaroons
     public void SatisfyGeneral(Func<Packet, bool> verifier)
     {
       Condition.Requires(verifier, "verifier").IsNotNull();
-      VerifierCallbacks.Add(verifier);
+      VerifierCallbacks.Add(VerifierWrapper(verifier));
+    }
+
+
+    public void SatisfyGeneral(VerifierWithReasonDelegate verifier)
+    {
+      Condition.Requires(verifier, "verifier").IsNotNull();
+      VerifierCallbacks.Add(VerifierWrapper(verifier));
+    }
+
+
+    protected static Func<Packet, KeyValuePair<bool, string>> VerifierWrapper(Func<Packet, bool> verifier)
+    {
+      return (cid) => new KeyValuePair<bool, string>(verifier(cid), null);
+    }
+
+
+    public delegate bool VerifierWithReasonDelegate(Packet cid, out string reason);
+
+
+    protected static Func<Packet, KeyValuePair<bool, string>> VerifierWrapper(VerifierWithReasonDelegate verifier)
+    {
+      return (cid) =>
+      {
+        string reason;
+        bool result = verifier(cid, out reason);
+        return new KeyValuePair<bool, string>(result, reason);
+      };
     }
 
 
@@ -82,16 +109,30 @@ namespace Macaroons
       return m.Verify(this, key, ms);
     }
 
-    
+
     public bool IsValidFirstPartyCaveat(Packet cid)
     {
+      string reason;
+      return IsValidFirstPartyCaveat(cid, out reason);
+    }
+
+
+    public bool IsValidFirstPartyCaveat(Packet cid, out string reason)
+    {
+      reason = null;
+
       foreach (Packet p in Predicates)
         if (p == cid)
           return true;
 
-      foreach (Func<Packet, bool> verifier in VerifierCallbacks)
-        if (verifier(cid))
+      foreach (Func<Packet, KeyValuePair<bool, string>> verifier in VerifierCallbacks)
+      {
+        var result = verifier(cid);
+        if (result.Key)
           return true;
+        if (result.Value != null)
+          reason = result.Value;
+      }
 
       return false;
     }
