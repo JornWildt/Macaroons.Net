@@ -93,7 +93,7 @@ a complete guide to using Macaroons.Net.
 
 ## Author
 * Jørn Wildt
-* E-mail: jw@fjeldgruppen.dk
+* E-mail: jw@elfisk.dk
 * Twitter: @JornWildt
 
 ## Credits
