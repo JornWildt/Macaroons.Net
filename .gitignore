@@ -1,6 +1,7 @@
 Binaries/
 bin/
 obj/
+.vs/
 .nuget/
 *.nupkg
 *.user

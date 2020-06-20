@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30011.22
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Macaroons.Net", "Macaroons.Net\Macaroons.Net.csproj", "{23D5957C-FCF6-4323-8C18-F66DCE82A1A5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Macaroons.Net.Tests", "Macaroons.Net.Tests\Macaroons.Net.Tests.csproj", "{CBEDCFF8-DC57-45A1-B277-1DB39DD119B9}"
@@ -9,6 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Walkthrough", "Walkthrough\
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documents", "Documents", "{EDD5A02F-4D6E-49B7-922C-9C361C38DF4A}"
 	ProjectSection(SolutionItems) = preProject
+		BuildNuGet.bat = BuildNuGet.bat
 		CODEBASE.TXT = CODEBASE.TXT
 		LICENSE.TXT = LICENSE.TXT
 		README.md = README.md
@@ -70,5 +73,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {072FEBE6-742A-4FF9-9226-E98EEACF6ADC}
 	EndGlobalSection
 EndGlobal

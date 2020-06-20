@@ -16,7 +16,7 @@ namespace Macaroons.Tests
     const string Location2 = "http://mybank/";
 
 
-    [TestFixtureSetUp]
+    [OneTimeSetUpAttribute]
     public void SetupFixture()
     {
       Macaroon.Crypto = new SecretBoxCryptoAlgorithm(false);
