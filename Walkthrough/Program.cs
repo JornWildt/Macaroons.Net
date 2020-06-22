@@ -32,7 +32,7 @@ namespace Walkthrough
       
       Console.WriteLine(m.Inspect());
 
-      m.AddFirstPartyCaveat("time < 2015-01-01T00:00");
+      m.AddFirstPartyCaveat("time < 2040-01-01T00:00");
       Console.WriteLine(m.Signature);
       m.AddFirstPartyCaveat("email = alice@example.org");
       Console.WriteLine(m.Signature);
@@ -57,7 +57,7 @@ namespace Walkthrough
       v.SatisfyExact("browser = Chrome");
       v.SatisfyExact("action = deposit");
 
-      Console.WriteLine(CheckTime(new Packet("time < 2015-01-01T00:00")));
+      Console.WriteLine(CheckTime(new Packet("time < 2040-01-01T00:00")));
       Console.WriteLine(CheckTime(new Packet("time < 2014-01-01T00:00")));
       Console.WriteLine(CheckTime(new Packet("account = 3735928559")));
 
@@ -105,7 +105,7 @@ namespace Walkthrough
       var caveats = m.ThirdPartyCaveats;
 
       Macaroon d = new Macaroon("http://auth.mybank/", caveat_key, identifier);
-      d.AddFirstPartyCaveat("time < 2015-01-01T00:00");
+      d.AddFirstPartyCaveat("time < 2040-01-01T00:00");
       Console.WriteLine(d.Inspect());
 
       Macaroon dp = m.PrepareForRequest(d);
