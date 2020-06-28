@@ -88,8 +88,8 @@ namespace Macaroons
     public string Inspect()
     {
       return "CId = " + CId
-       + (VId != null ? "\r\n  VId = " + VId : "")
-       + (Cl != null ? "\r\n  Cl = " + Cl : "");
+       + (VId != null ? Environment.NewLine + "  VId = " + VId : "")
+       + (Cl != null ? Environment.NewLine + "  Cl = " + Cl : "");
     }
 
 

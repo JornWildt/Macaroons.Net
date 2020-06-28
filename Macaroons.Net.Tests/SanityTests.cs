@@ -1,11 +1,12 @@
-﻿using NUnit.Framework;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using NUnit.Framework;
 
 
 namespace Macaroons.Tests
 {
-  // These tests go through the examples from the tutorial on 
+  // These tests go through the examples from the tutorial on
   // the original libmacaroons GitHub page at https://github.com/rescrv/libmacaroons
 
   [TestFixture]
@@ -71,13 +72,15 @@ namespace Macaroons.Tests
       Assert.AreEqual("CId = email = alice@example.org", m.Caveats[2].Inspect());
       Assert.AreEqual("882E6D59496ED5245EDB7AB5B8839ECD63E5D504E54839804F164070D8EED952", m.Signature.ToString());
 
-      string expectedStringRepresentation = @"Location = http://mybank/
-Identifier = we used our secret key
-CId = account = 3735928559
-CId = time < 2015-01-01T00:00
-CId = email = alice@example.org
-Signature = 882E6D59496ED5245EDB7AB5B8839ECD63E5D504E54839804F164070D8EED952
-";
+      string expectedStringRepresentation = string.Join(Environment.NewLine, new[] {
+        "Location = http://mybank/",
+        "Identifier = we used our secret key",
+        "CId = account = 3735928559",
+        "CId = time < 2015-01-01T00:00",
+        "CId = email = alice@example.org",
+        "Signature = 882E6D59496ED5245EDB7AB5B8839ECD63E5D504E54839804F164070D8EED952",
+        ""
+      });
 
       Assert.AreEqual(expectedStringRepresentation, m.Inspect());
     }
@@ -104,15 +107,17 @@ Signature = 882E6D59496ED5245EDB7AB5B8839ECD63E5D504E54839804F164070D8EED952
 
       // Assert
       Assert.AreEqual("D27DB2FD1F22760E4C3DAE8137E2D8FC1DF6C0741C18AED4B97256BF78D1F55C", m.Signature.ToString());
-     
-      string expectedStringRepresentation = @"Location = http://mybank/
-Identifier = we used our other secret key
-CId = account = 3735928559
-CId = this was how we remind auth of key/pred
-  VId = AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA027FAuBYhtHwJ58FX6UlVNFtFsGxQHS7uD_w_dedwv4Jjw7UorCREw5rXbRqIKhr
-  Cl = http://auth.mybank/
-Signature = D27DB2FD1F22760E4C3DAE8137E2D8FC1DF6C0741C18AED4B97256BF78D1F55C
-";
+
+      string expectedStringRepresentation = string.Join(Environment.NewLine, new[] {
+        "Location = http://mybank/",
+        "Identifier = we used our other secret key",
+        "CId = account = 3735928559",
+        "CId = this was how we remind auth of key/pred",
+        "  VId = AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA027FAuBYhtHwJ58FX6UlVNFtFsGxQHS7uD_w_dedwv4Jjw7UorCREw5rXbRqIKhr",
+        "  Cl = http://auth.mybank/",
+        "Signature = D27DB2FD1F22760E4C3DAE8137E2D8FC1DF6C0741C18AED4B97256BF78D1F55C",
+        ""
+      });
 
       Assert.AreEqual(expectedStringRepresentation, m.Inspect());
 
