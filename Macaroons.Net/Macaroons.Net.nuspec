@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/JornWildt/Macaroons.Net/</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Target packages for 4.6 .NET framework. Upgrade Baseclass.Contrib.Nuget.Output to 2.4.3</releaseNotes>
+    <releaseNotes>Include pull requests 1 and 2.</releaseNotes>
     <copyright>Copyright 2020</copyright>
     <tags>macaroons</tags>
   </metadata>
