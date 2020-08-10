@@ -10,8 +10,11 @@
     <projectUrl>https://github.com/JornWildt/Macaroons.Net/</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
-    <releaseNotes>Include pull requests 1 and 2.</releaseNotes>
+    <releaseNotes>Adding explicit dependency on Baseclass.Contrib.Nuget.Output 2.4.3</releaseNotes>
     <copyright>Copyright 2020</copyright>
     <tags>macaroons</tags>
+    <dependencies>
+      <dependency id="Baseclass.Contrib.Nuget.Output" version="2.4.3" />
+    </dependencies>
   </metadata>
 </package>
