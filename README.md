@@ -9,6 +9,8 @@ This implementation is a port of the original C implementation from https://gith
 It uses exactly the same serialization format, encryption and hashing algorithms and should as such be 
 compatible with the C implementation.
 
+Macaroons.Net is available as a NuGet package (https://www.nuget.org/packages/Macaroons.Net/)
+
 ## Why Macaroons?
 
 (*This text is from the original C implementation by Robert Escriva*)
