@@ -2,6 +2,13 @@
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0;net46</TargetFrameworks>
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <PackageVersion>1.0.4</PackageVersion>
+        <Description>A C# implementation of [macaroons](http://research.google.com/pubs/pub41892.html)</Description>
+        <Authors>Jorn Wildt</Authors>
+        <Copyright>Copyright © 2014</Copyright>
+        <PackageProjectUrl>https://github.com/JornWildt/Macaroons.Net/</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/JornWildt/Macaroons.Net/</RepositoryUrl>
+        <PackageTags>macaroons</PackageTags>
     </PropertyGroup>
     
     <ItemGroup Condition=" '$(TargetFramework)' == 'net46' ">
