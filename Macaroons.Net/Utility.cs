@@ -32,7 +32,7 @@ namespace Macaroons
       return dst;
     }
 
-
+#if NET46
     [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
     static extern int memcmp(byte[] b1, byte[] b2, long count);
 
@@ -43,6 +43,14 @@ namespace Macaroons
       // This also ensures that the count does not exceed the length of either buffer.  
       return b1.Length == b2.Length && memcmp(b1, b2, b1.Length) == 0;
     }
+#else
+    internal static bool ByteArrayEquals(ReadOnlySpan<byte> b1, ReadOnlySpan<byte> b2)
+    {
+      // Validate buffers are the same length.
+      // This also ensures that the count does not exceed the length of either buffer.  
+      return b1.Length == b2.Length && b1.SequenceEqual(b2);
+    }
+#endif
 
 
     public static void DataSizeLessThanOrEqual(this ConditionValidator<Packet> validator, int length)
