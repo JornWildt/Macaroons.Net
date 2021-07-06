@@ -32,7 +32,7 @@ namespace Macaroons
       return dst;
     }
 
-#if NET46
+#if NET46_OR_GREATER
     [DllImport("msvcrt.dll", CallingConvention = CallingConvention.Cdecl)]
     static extern int memcmp(byte[] b1, byte[] b2, long count);
 

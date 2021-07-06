@@ -58,17 +58,17 @@ namespace Macaroons
       // Created encrypted data including N * zero bytes padding from the secret box algorithm
       byte[] cipherTextPadded = Sodium.SecretBox.Create(plainText, nonce, key);
 
-#if NET46
+#if NET46_OR_GREATER
       // Create a cipher block consisting of the nonce and the cipher text excluding the padding
       byte[] cipherBlock = new byte[nonce.Length + cipherTextPadded.Length - SECRET_BOX_ZERO_BYTES];
 #else 
       byte[] cipherBlock = new byte[nonce.Length + cipherTextPadded.Length];
 #endif
       Buffer.BlockCopy(nonce, 0, cipherBlock, 0, nonce.Length);
-      
-#if NET46      
+
+#if NET46_OR_GREATER
       Buffer.BlockCopy(cipherTextPadded, SECRET_BOX_ZERO_BYTES, cipherBlock, nonce.Length, cipherBlock.Length - nonce.Length);
-#else 
+#else
       Buffer.BlockCopy(cipherTextPadded, 0, cipherBlock, nonce.Length, cipherBlock.Length - nonce.Length);
 #endif        
         return cipherBlock;

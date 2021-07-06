@@ -1,5 +1,5 @@
 ﻿using System;
-#if NET46
+#if NET46_OR_GREATER
 using System.Runtime.Remoting.Metadata.W3cXsd2001;
 #endif
 
@@ -13,7 +13,7 @@ namespace Macaroons
   {
     public override string GetString(byte[] d)
     {
-#if NET46
+#if NET46_OR_GREATER
       SoapHexBinary hb = new SoapHexBinary(d);
       return hb.ToString();
 #else
