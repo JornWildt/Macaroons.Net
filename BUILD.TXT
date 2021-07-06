@@ -1,0 +1,5 @@
+* Update versions in project file.
+* Select "Release" mode for compilation.
+* Update release note in project file.
+* Build
+* Right-click "Pack" on Macaroons.net project.
