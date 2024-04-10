@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NaCl;
+using System;
 using System.Security.Cryptography;
 
 
@@ -9,9 +10,7 @@ namespace Macaroons
   /// </summary>
   public class SecretBoxCryptoAlgorithm : CryptoAlgorithm
   {
-    private const int SECRET_BOX_ZERO_BYTES = 16;
-
-    private const int SECRET_BOX_NONCE_BYTES = 24;
+    private const int SECRET_BOX_ZERO_BYTES = 0;
 
 
     /// <summary>
@@ -44,7 +43,7 @@ namespace Macaroons
     public override byte[] Encrypt(byte[] key, byte[] plainText)
     {
       // Create nonce having all bytes set to zero.
-      byte[] nonce = new byte[SECRET_BOX_NONCE_BYTES];
+      byte[] nonce = new byte[XSalsa20Poly1305.NonceLength];
 
       // All of the secret box documentation states that it is important to use a random nonce (or avoid reusing nonces completely).
       // But the original C implemention ignores this so it is made configurable in order to be compatible with that implementation.
@@ -54,14 +53,26 @@ namespace Macaroons
           rng.GetBytes(nonce);
       }
 
-
       // Created encrypted data including N * zero bytes padding from the secret box algorithm
-      byte[] cipherTextPadded = Sodium.SecretBox.Create(plainText, nonce, key);
+      byte[] cipherTextPadded = new byte[plainText.Length + XSalsa20Poly1305.TagLength];
+
+      using (var xSalsa20Poly1305 = new XSalsa20Poly1305(key))
+      {
+        xSalsa20Poly1305.Encrypt(cipherTextPadded, plainText, nonce);
+      }
+
+      using (var xSalsa20Poly1305 = new XSalsa20Poly1305(key))
+      {
+        var result = new byte[cipherTextPadded.Length];
+        bool ok = xSalsa20Poly1305.TryDecrypt(result, cipherTextPadded, nonce);
+        if (!ok)
+          throw new ApplicationException("Could not decrypt"); // FIXME: Improve.
+      }
 
 #if NET46_OR_GREATER
       // Create a cipher block consisting of the nonce and the cipher text excluding the padding
       byte[] cipherBlock = new byte[nonce.Length + cipherTextPadded.Length - SECRET_BOX_ZERO_BYTES];
-#else 
+#else
       byte[] cipherBlock = new byte[nonce.Length + cipherTextPadded.Length];
 #endif
       Buffer.BlockCopy(nonce, 0, cipherBlock, 0, nonce.Length);
@@ -84,7 +95,7 @@ namespace Macaroons
     public override byte[] Decrypt(byte[] key, byte[] cipherBlock)
     {
       // Extract nonce from cipher block.
-      byte[] nonce = new byte[SECRET_BOX_NONCE_BYTES];
+      byte[] nonce = new byte[XSalsa20Poly1305.NonceLength];
       Buffer.BlockCopy(cipherBlock, 0, nonce, 0, nonce.Length);
 
       // Extract cipher text and add padding for the secret box algorithm
@@ -92,8 +103,15 @@ namespace Macaroons
       Buffer.BlockCopy(cipherBlock, nonce.Length, cipherTextPadded, SECRET_BOX_ZERO_BYTES, cipherBlock.Length - nonce.Length);
 
       // Decrypt the cipher text
-      byte[] plainText = Sodium.SecretBox.Open(cipherTextPadded, nonce, key);
-      return plainText;
+      using (var xSalsa20Poly1305 = new XSalsa20Poly1305(key))
+      {
+        var result = new byte[cipherTextPadded.Length];
+        bool ok = xSalsa20Poly1305.TryDecrypt(result, cipherTextPadded, nonce);
+        if (!ok)
+          throw new ApplicationException("Could not decrypt"); // FIXME: Improve.
+
+        return result;
+      }
     }
   }
 }

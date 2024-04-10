@@ -1,0 +1,8 @@
+2.1.0
+-----
+* Replaced obsolete Libsodium.Net with NaCL.Net for encrypting third party caveat.
+* No more native code included from obsolete Libsodium - and thus no more need for an obsolete "C++ redistributable 2010".
+
+2.0.0
+-----
+* Added multi target support for .NET 4.6, 4.7, 4.8 and .NET Standard 2.0.
