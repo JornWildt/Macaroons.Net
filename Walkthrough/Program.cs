@@ -121,8 +121,12 @@ namespace Walkthrough
       Console.WriteLine(Macaroon.MACAROON_SUGGESTED_SECRET_LENGTH);
 
       byte[] randomSecret = new byte[Macaroon.MACAROON_SUGGESTED_SECRET_LENGTH];
+#if NET46_OR_GREATER
       using (RNGCryptoServiceProvider rng = new RNGCryptoServiceProvider())
         rng.GetBytes(randomSecret);
+#else
+      RandomNumberGenerator.Fill(randomSecret);
+#endif
 
       Packet key = new Packet(randomSecret, DataEncoding.Hex);
       Console.WriteLine(key);

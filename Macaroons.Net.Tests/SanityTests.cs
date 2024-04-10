@@ -31,10 +31,10 @@ namespace Macaroons.Tests
       Macaroon m = new Macaroon(Location, Secret, Identifier);
 
       // Assert
-      Assert.AreEqual(Identifier, m.Identifier.ToString());
-      Assert.AreEqual(Location, m.Location.ToString());
-      Assert.AreEqual("E3D9E02908526C4C0039AE15114115D97FDD68BF2BA379B342AAF0F617D0552F", m.Signature.ToString());
-      Assert.AreEqual(0, m.Caveats.Count);
+      Assert.That(m.Identifier.ToString(), Is.EqualTo(Identifier));
+      Assert.That(m.Location.ToString(), Is.EqualTo(Location));
+      Assert.That(m.Signature.ToString(), Is.EqualTo("E3D9E02908526C4C0039AE15114115D97FDD68BF2BA379B342AAF0F617D0552F"));
+      Assert.That(m.Caveats.Count, Is.EqualTo(0));
     }
 
 
@@ -48,9 +48,9 @@ namespace Macaroons.Tests
       m.AddFirstPartyCaveat("account = 3735928559");
 
       // Assert
-      Assert.AreEqual(1, m.Caveats.Count);
-      Assert.AreEqual("CId = account = 3735928559", m.Caveats[0].Inspect());
-      Assert.AreEqual("1EFE4763F290DBCE0C1D08477367E11F4EEE456A64933CF662D79772DBB82128", m.Signature.ToString());
+      Assert.That(m.Caveats.Count, Is.EqualTo(1));
+      Assert.That(m.Caveats[0].Inspect(), Is.EqualTo("CId = account = 3735928559"));
+      Assert.That(m.Signature.ToString(), Is.EqualTo("1EFE4763F290DBCE0C1D08477367E11F4EEE456A64933CF662D79772DBB82128"));
     }
 
 
@@ -66,11 +66,11 @@ namespace Macaroons.Tests
       m.AddFirstPartyCaveat("email = alice@example.org");
 
       // Assert
-      Assert.AreEqual(3, m.Caveats.Count);
-      Assert.AreEqual("CId = account = 3735928559", m.Caveats[0].Inspect());
-      Assert.AreEqual("CId = time < 2015-01-01T00:00", m.Caveats[1].Inspect());
-      Assert.AreEqual("CId = email = alice@example.org", m.Caveats[2].Inspect());
-      Assert.AreEqual("882E6D59496ED5245EDB7AB5B8839ECD63E5D504E54839804F164070D8EED952", m.Signature.ToString());
+      Assert.That(m.Caveats.Count, Is.EqualTo(3));
+      Assert.That(m.Caveats[0].Inspect(), Is.EqualTo("CId = account = 3735928559"));
+      Assert.That(m.Caveats[1].Inspect(), Is.EqualTo("CId = time < 2015-01-01T00:00"));
+      Assert.That(m.Caveats[2].Inspect(), Is.EqualTo("CId = email = alice@example.org"));
+      Assert.That(m.Signature.ToString(), Is.EqualTo("882E6D59496ED5245EDB7AB5B8839ECD63E5D504E54839804F164070D8EED952"));
 
       string expectedStringRepresentation = string.Join(Environment.NewLine, new[] {
         "Location = http://mybank/",
@@ -82,7 +82,7 @@ namespace Macaroons.Tests
         ""
       });
 
-      Assert.AreEqual(expectedStringRepresentation, m.Inspect());
+      Assert.That(m.Inspect(), Is.EqualTo(expectedStringRepresentation));
     }
 
 
@@ -94,7 +94,7 @@ namespace Macaroons.Tests
       m.AddFirstPartyCaveat("account = 3735928559");
 
       // - just checking (this should although be covered in other tests) ...
-      Assert.AreEqual("1434E674AD84FDFDC9BC1AA00785325C8B6D57341FC7CE200BA4680C80786DDA", m.Signature.ToString());
+      Assert.That(m.Signature.ToString(), Is.EqualTo("1434E674AD84FDFDC9BC1AA00785325C8B6D57341FC7CE200BA4680C80786DDA"));
 
       // Act
       string caveat_key = "4; guaranteed random by a fair toss of the dice";
@@ -106,7 +106,7 @@ namespace Macaroons.Tests
       m.AddThirdPartyCaveat("http://auth.mybank/", caveat_key, identifier);
 
       // Assert
-      Assert.AreEqual("D27DB2FD1F22760E4C3DAE8137E2D8FC1DF6C0741C18AED4B97256BF78D1F55C", m.Signature.ToString());
+      Assert.That(m.Signature.ToString(), Is.EqualTo("D27DB2FD1F22760E4C3DAE8137E2D8FC1DF6C0741C18AED4B97256BF78D1F55C"));
 
       string expectedStringRepresentation = string.Join(Environment.NewLine, new[] {
         "Location = http://mybank/",
@@ -119,12 +119,12 @@ namespace Macaroons.Tests
         ""
       });
 
-      Assert.AreEqual(expectedStringRepresentation, m.Inspect());
+      Assert.That(m.Inspect(), Is.EqualTo(expectedStringRepresentation));
 
       List<Caveat> thirdPartyCaveats = m.ThirdPartyCaveats.ToList();
-      Assert.AreEqual(1, thirdPartyCaveats.Count);
-      Assert.AreEqual("http://auth.mybank/", thirdPartyCaveats[0].Cl.ToString());
-      Assert.AreEqual("this was how we remind auth of key/pred", thirdPartyCaveats[0].CId.ToString());
+      Assert.That(thirdPartyCaveats.Count, Is.EqualTo(1));
+      Assert.That(thirdPartyCaveats[0].Cl.ToString(), Is.EqualTo("http://auth.mybank/"));
+      Assert.That(thirdPartyCaveats[0].CId.ToString(), Is.EqualTo("this was how we remind auth of key/pred"));
     }
 
 
@@ -146,8 +146,8 @@ namespace Macaroons.Tests
       Macaroon dp = m.PrepareForRequest(d);
 
       // Assert
-      Assert.AreEqual("82A80681F9F32D419AF12F6A71787A1BAC3AB199DF934ED950DDF20C25AC8C65", d.Signature.ToString());
-      Assert.AreEqual("2EB01D0DD2B4475330739140188648CF25DDA0425EA9F661F1574CA0A9EAC54E", dp.Signature.ToString());
+      Assert.That(d.Signature.ToString(), Is.EqualTo("82A80681F9F32D419AF12F6A71787A1BAC3AB199DF934ED950DDF20C25AC8C65"));
+      Assert.That(dp.Signature.ToString(), Is.EqualTo("2EB01D0DD2B4475330739140188648CF25DDA0425EA9F661F1574CA0A9EAC54E"));
     }
 
 
@@ -175,7 +175,7 @@ namespace Macaroons.Tests
       VerificationResult result = m.Verify(v, Secret2, new List<Macaroon> { dp });
 
       // Assert
-      Assert.IsTrue(result.Success);
+      Assert.That(result.Success, Is.True);
     }
   }
 }

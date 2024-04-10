@@ -18,7 +18,7 @@ namespace Macaroons.Tests
       VerificationResult verified = m.Verify(v, Secret);
 
       // Assert
-      Assert.IsTrue(verified.Success);
+      Assert.That(verified.Success, Is.True);
     }
 
 
@@ -36,7 +36,7 @@ namespace Macaroons.Tests
       VerificationResult verified = m.Verify(v, Secret);
 
       // Assert
-      Assert.IsTrue(verified.Success);
+      Assert.That(verified.Success, Is.True);
     }
 
 
@@ -58,7 +58,7 @@ namespace Macaroons.Tests
       VerificationResult verified = m.Verify(v, Secret);
 
       // Assert
-      Assert.IsTrue(verified.Success);
+      Assert.That(verified.Success, Is.True);
     }
 
 
@@ -80,12 +80,12 @@ namespace Macaroons.Tests
       VerificationResult verified2 = mFailure.Verify(v, Secret);
 
       // Assert
-      Assert.IsTrue(verified1.Success);
-      Assert.IsFalse(verified2.Success);
-      Assert.AreEqual(1, verified2.Messages.Count);
-      StringAssert.Contains("Caveat", verified2.Messages[0]);
-      StringAssert.Contains("time < 2000-01-01T00:00", verified2.Messages[0]);
-      StringAssert.Contains("failed", verified2.Messages[0]);
+      Assert.That(verified1.Success, Is.True);
+      Assert.That(verified2.Success, Is.False);
+      Assert.That(verified2.Messages.Count, Is.EqualTo(1));
+      Assert.That(verified2.Messages[0], Does.Contain("Caveat"));
+      Assert.That(verified2.Messages[0], Does.Contain("time < 2000-01-01T00:00"));
+      Assert.That(verified2.Messages[0], Does.Contain("failed"));
     }
 
 
@@ -103,10 +103,10 @@ namespace Macaroons.Tests
       VerificationResult verified = m.Verify(v, Secret);
 
       // Assert
-      Assert.IsFalse(verified.Success);
-      Assert.AreEqual(1, verified.Messages.Count);
-      StringAssert.Contains("Caveat", verified.Messages[0]);
-      StringAssert.Contains("failed", verified.Messages[0]);
+      Assert.That(verified.Success, Is.False);
+      Assert.That(verified.Messages.Count, Is.EqualTo(1));
+      Assert.That(verified.Messages[0], Does.Contain("Caveat"));
+      Assert.That(verified.Messages[0], Does.Contain("failed"));
     }
 
 
@@ -124,9 +124,9 @@ namespace Macaroons.Tests
       VerificationResult verified = m.Verify(v, Secret);
 
       // Assert
-      Assert.IsFalse(verified.Success);
-      Assert.AreEqual(1, verified.Messages.Count);
-      StringAssert.Contains("Signature mismatch", verified.Messages[0]);
+      Assert.That(verified.Success, Is.False);
+      Assert.That(verified.Messages.Count, Is.EqualTo(1));
+      Assert.That(verified.Messages[0], Does.Contain("Signature mismatch"));
     }
 
 
@@ -153,15 +153,15 @@ namespace Macaroons.Tests
       VerificationResult verifiedFails = mInvalid.Verify(v, Secret);
 
       // Assert
-      Assert.AreEqual(mValid.Location, mInvalid.Location);
-      Assert.AreEqual(mValid.Identifier, mInvalid.Identifier);
-      Assert.AreEqual(mValid.Caveats.Count, mInvalid.Caveats.Count);
-      Assert.AreNotEqual(mValid.Signature, mInvalid.Signature);
-      Assert.IsTrue(verifiedOk.Success);
-      Assert.IsFalse(verifiedFails.Success);
-      Assert.AreEqual(2, verifiedFails.Messages.Count);
-      StringAssert.Contains("Caveat 'time < 2015-01-01T00:00' failed", verifiedFails.Messages[0]);
-      StringAssert.Contains("Signature mismatch", verifiedFails.Messages[1]);
+      Assert.That(mInvalid.Location, Is.EqualTo(mValid.Location));
+      Assert.That(mInvalid.Identifier, Is.EqualTo(mValid.Identifier));
+      Assert.That(mInvalid.Caveats.Count, Is.EqualTo(mValid.Caveats.Count));
+      Assert.That(mInvalid.Signature, Is.Not.EqualTo(mValid.Signature));
+      Assert.That(verifiedOk.Success, Is.True);
+      Assert.That(verifiedFails.Success, Is.False);
+      Assert.That(verifiedFails.Messages.Count, Is.EqualTo(2));
+      Assert.That(verifiedFails.Messages[0], Does.Contain("Caveat 'time < 2015-01-01T00:00' failed"));
+      Assert.That(verifiedFails.Messages[1], Does.Contain("Signature mismatch"));
     }
 
 
@@ -202,7 +202,7 @@ namespace Macaroons.Tests
       VerificationResult result = m.Verify(v, Secret, new List<Macaroon> { dp1, dp2 });
 
       // Assert
-      Assert.IsTrue(result.Success);
+      Assert.That(result.Success, Is.True);
     }
 
 
@@ -244,8 +244,8 @@ namespace Macaroons.Tests
       VerificationResult result2 = m.Verify(v, Secret, new List<Macaroon> { dp2 });
 
       // Assert
-      Assert.IsFalse(result1.Success);
-      Assert.IsFalse(result2.Success);
+      Assert.That(result1.Success, Is.False);
+      Assert.That(result2.Success, Is.False);
     }
 
 
@@ -286,7 +286,7 @@ namespace Macaroons.Tests
       VerificationResult result = m.Verify(v, Secret, new List<Macaroon> { dp1, dp2 });
 
       // Assert
-      Assert.IsFalse(result.Success);
+      Assert.That(result.Success, Is.False);
     }
 
 
@@ -324,9 +324,9 @@ namespace Macaroons.Tests
       VerificationResult result = m.Verify(v, Secret, new List<Macaroon> { dp1, dp2 });
 
       // Assert
-      Assert.IsFalse(result.Success);
-      Assert.AreEqual(2, result.Messages.Count);
-      StringAssert.Contains("circular", result.Messages[0]);
+      Assert.That(result.Success, Is.False);
+      Assert.That(result.Messages.Count, Is.EqualTo(2));
+      Assert.That(result.Messages[0], Does.Contain("circular"));
     }
 
 
@@ -344,9 +344,9 @@ namespace Macaroons.Tests
       VerificationResult verified2 = mFailure.Verify(v, Secret);
 
       // Assert
-      Assert.IsFalse(verified2.Success);
-      Assert.AreEqual(1, verified2.Messages.Count);
-      Assert.AreEqual("Timestamp '2000-01-01T00:00:00Z' has expired", verified2.Messages[0]);
+      Assert.That(verified2.Success, Is.False);
+      Assert.That(verified2.Messages.Count, Is.EqualTo(1));
+      Assert.That(verified2.Messages[0], Is.EqualTo("Timestamp '2000-01-01T00:00:00Z' has expired"));
     }
 
 
@@ -364,9 +364,9 @@ namespace Macaroons.Tests
       VerificationResult verified2 = mFailure.Verify(v, Secret);
 
       // Assert
-      Assert.IsFalse(verified2.Success);
-      Assert.AreEqual(1, verified2.Messages.Count);
-      Assert.AreEqual("Invalid timestamp in 'expires: 23-12-2000'", verified2.Messages[0]);
+      Assert.That(verified2.Success, Is.False);
+      Assert.That(verified2.Messages.Count, Is.EqualTo(1));
+      Assert.That(verified2.Messages[0], Is.EqualTo("Invalid timestamp in 'expires: 23-12-2000'"));
     }
 
 
@@ -384,9 +384,9 @@ namespace Macaroons.Tests
       VerificationResult verified2 = mFailure.Verify(v, Secret);
 
       // Assert
-      Assert.IsFalse(verified2.Success);
-      Assert.AreEqual(1, verified2.Messages.Count);
-      Assert.AreEqual("Caveat 'other: 1234' failed", verified2.Messages[0]);
+      Assert.That(verified2.Success, Is.False);
+      Assert.That(verified2.Messages.Count, Is.EqualTo(1));
+      Assert.That(verified2.Messages[0], Is.EqualTo("Caveat 'other: 1234' failed"));
     }
   }
 }

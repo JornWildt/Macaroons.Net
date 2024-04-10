@@ -17,7 +17,7 @@ namespace Macaroons.Tests
       string s = m.Serialize();
 
       // Assert
-      Assert.AreEqual("MDAxY2xvY2F0aW9uIGh0dHA6Ly9teWJhbmsvCjAwMjZpZGVudGlmaWVyIHdlIHVzZWQgb3VyIHNlY3JldCBrZXkKMDAyZnNpZ25hdHVyZSDj2eApCFJsTAA5rhURQRXZf91ovyujebNCqvD2F9BVLwo", s);
+      Assert.That(s, Is.EqualTo("MDAxY2xvY2F0aW9uIGh0dHA6Ly9teWJhbmsvCjAwMjZpZGVudGlmaWVyIHdlIHVzZWQgb3VyIHNlY3JldCBrZXkKMDAyZnNpZ25hdHVyZSDj2eApCFJsTAA5rhURQRXZf91ovyujebNCqvD2F9BVLwo"));
     }
 
 
@@ -34,7 +34,7 @@ namespace Macaroons.Tests
       string s = m.Serialize();
 
       // Assert (the expected value here is just calculated - I havent seen any correct value on the web)
-      Assert.AreEqual("MDAxY2xvY2F0aW9uIGh0dHA6Ly9teWJhbmsvCjAwMjZpZGVudGlmaWVyIHdlIHVzZWQgb3VyIHNlY3JldCBrZXkKMDAxZGNpZCBhY2NvdW50ID0gMzczNTkyODU1OQowMDIwY2lkIHRpbWUgPCAyMDE1LTAxLTAxVDAwOjAwCjAwMjJjaWQgZW1haWwgPSBhbGljZUBleGFtcGxlLm9yZwowMDJmc2lnbmF0dXJlIIgubVlJbtUkXtt6tbiDns1j5dUE5Ug5gE8WQHDY7tlSCg", s);
+      Assert.That(s, Is.EqualTo("MDAxY2xvY2F0aW9uIGh0dHA6Ly9teWJhbmsvCjAwMjZpZGVudGlmaWVyIHdlIHVzZWQgb3VyIHNlY3JldCBrZXkKMDAxZGNpZCBhY2NvdW50ID0gMzczNTkyODU1OQowMDIwY2lkIHRpbWUgPCAyMDE1LTAxLTAxVDAwOjAwCjAwMjJjaWQgZW1haWwgPSBhbGljZUBleGFtcGxlLm9yZwowMDJmc2lnbmF0dXJlIIgubVlJbtUkXtt6tbiDns1j5dUE5Ug5gE8WQHDY7tlSCg"));
     }
 
 
@@ -48,10 +48,10 @@ namespace Macaroons.Tests
       Macaroon m = Macaroon.Deserialize(serialized);
 
       // Assert
-      Assert.AreEqual(Location, m.Location.ToString());
-      Assert.AreEqual(Identifier, m.Identifier.ToString());
-      Assert.AreEqual(0, m.Caveats.Count);
-      Assert.IsTrue(m.Verify(new Verifier(), Secret).Success);
+      Assert.That(m.Location.ToString(), Is.EqualTo(Location));
+      Assert.That(m.Identifier.ToString(), Is.EqualTo(Identifier));
+      Assert.That(m.Caveats.Count, Is.EqualTo(0));
+      Assert.That(m.Verify(new Verifier(), Secret).Success, Is.True);
     }
 
 
@@ -65,12 +65,12 @@ namespace Macaroons.Tests
       Macaroon m = Macaroon.Deserialize(serialized);
 
       // Assert
-      Assert.AreEqual(Location, m.Location.ToString());
-      Assert.AreEqual(Identifier, m.Identifier.ToString());
-      Assert.AreEqual(3, m.Caveats.Count);
-      Assert.AreEqual("account = 3735928559", m.Caveats[0].CId.ToString());
-      Assert.AreEqual("time < 2015-01-01T00:00", m.Caveats[1].CId.ToString());
-      Assert.AreEqual("email = alice@example.org", m.Caveats[2].CId.ToString());
+      Assert.That(m.Location.ToString(), Is.EqualTo(Location));
+      Assert.That(m.Identifier.ToString(), Is.EqualTo(Identifier));
+      Assert.That(m.Caveats.Count, Is.EqualTo(3));
+      Assert.That(m.Caveats[0].CId.ToString(), Is.EqualTo("account = 3735928559"));
+      Assert.That(m.Caveats[1].CId.ToString(), Is.EqualTo("time < 2015-01-01T00:00"));
+      Assert.That(m.Caveats[2].CId.ToString(), Is.EqualTo("email = alice@example.org"));
     }
 
 
@@ -90,16 +90,16 @@ namespace Macaroons.Tests
       Macaroon m2 = Macaroon.Deserialize(s);
 
       // Assert
-      Assert.AreEqual(m1.Location, m2.Location);
-      Assert.AreEqual(m1.Identifier, m2.Identifier);
-      Assert.AreEqual(m1.Signature, m2.Signature);
-      Assert.AreEqual(m1.Caveats.Count, m2.Caveats.Count);
-      Assert.AreEqual(m1.Caveats[0].Cl, m2.Caveats[0].Cl);
-      Assert.AreEqual(m1.Caveats[0].CId, m2.Caveats[0].CId);
-      Assert.AreEqual(m1.Caveats[0].VId, m2.Caveats[0].VId);
-      Assert.AreEqual(m1.Caveats[1].Cl, m2.Caveats[1].Cl);
-      Assert.AreEqual(m1.Caveats[1].CId, m2.Caveats[1].CId);
-      Assert.AreEqual(m1.Caveats[1].VId, m2.Caveats[1].VId);
+      Assert.That(m2.Location, Is.EqualTo(m1.Location));
+      Assert.That(m2.Identifier, Is.EqualTo(m1.Identifier));
+      Assert.That(m2.Signature, Is.EqualTo(m1.Signature));
+      Assert.That(m2.Caveats.Count, Is.EqualTo(m1.Caveats.Count));
+      Assert.That(m2.Caveats[0].Cl, Is.EqualTo(m1.Caveats[0].Cl));
+      Assert.That(m2.Caveats[0].CId, Is.EqualTo(m1.Caveats[0].CId));
+      Assert.That(m2.Caveats[0].VId, Is.EqualTo(m1.Caveats[0].VId));
+      Assert.That(m2.Caveats[1].Cl, Is.EqualTo(m1.Caveats[1].Cl));
+      Assert.That(m2.Caveats[1].CId, Is.EqualTo(m1.Caveats[1].CId));
+      Assert.That(m2.Caveats[1].VId, Is.EqualTo(m1.Caveats[1].VId));
     }
 
 

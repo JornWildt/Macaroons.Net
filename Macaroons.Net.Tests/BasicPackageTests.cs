@@ -25,10 +25,10 @@ namespace Macaroons.Tests
       bool ok4 = p1a != p2;
 
       // Assert
-      Assert.IsTrue(ok1);
-      Assert.IsFalse(ok2);
-      Assert.IsFalse(ok3);
-      Assert.IsTrue(ok4);
+      Assert.That(ok1, Is.True);
+      Assert.That(ok2, Is.False);
+      Assert.That(ok3, Is.False);
+      Assert.That(ok4, Is.True);
     }
 
 
@@ -46,9 +46,9 @@ namespace Macaroons.Tests
       int h2 = p2.GetHashCode();
 
       // Assert
-      Assert.AreNotEqual(0, h1a);
-      Assert.AreEqual(h1a, h1b);
-      Assert.AreNotEqual(h1a, h2);
+      Assert.That(h1a, Is.Not.EqualTo(0));
+      Assert.That(h1b, Is.EqualTo(h1a));
+      Assert.That(h2, Is.Not.EqualTo(h1a));
     }
 
 
@@ -64,10 +64,10 @@ namespace Macaroons.Tests
       Packet q2 = new Packet(p2);
 
       // Assert
-      Assert.AreEqual(p1.Data, q1.Data);
-      Assert.AreEqual(p1.Encoding, p1.Encoding);
-      Assert.AreEqual(p2.Data, q2.Data);
-      Assert.AreEqual(p2.Encoding, p2.Encoding);
+      Assert.That(q1.Data, Is.EqualTo(p1.Data));
+      Assert.That(q1.Encoding, Is.EqualTo(p1.Encoding));
+      Assert.That(q2.Data, Is.EqualTo(p2.Data));
+      Assert.That(q2.Encoding, Is.EqualTo(p2.Encoding));
     }
   }
 }

@@ -19,18 +19,18 @@ namespace Macaroons.Tests
       Caveat c2 = new Caveat(c1);
 
       // Assert
-      Assert.AreEqual(c1.CId, c2.CId);
+      Assert.That(c2.CId, Is.EqualTo(c1.CId));
 
       // Change original values and verify the new values doesn't change
       c1.CId[0] = 9;
       c1.VId[0] = 8;
       c1.CId[0] = 7;
 
-      Assert.AreNotEqual(c1.CId, c2.CId);
+      Assert.That(c2.CId, Is.Not.EqualTo(c1.CId));
 
-      Assert.AreEqual(1, c2.CId[0]);
-      Assert.AreEqual(4, c2.VId[0]);
-      Assert.AreEqual(1, c2.Cl[0]);
+      Assert.That(c2.CId[0], Is.EqualTo(1));
+      Assert.That(c2.VId[0], Is.EqualTo(4));
+      Assert.That(c2.Cl[0], Is.EqualTo(1));
     }
 
 
@@ -44,7 +44,7 @@ namespace Macaroons.Tests
       string s = c.ToString();
 
       // Assert
-      Assert.AreEqual("Caveat 1", s);
+      Assert.That(s, Is.EqualTo("Caveat 1"));
     }
   }
 }
