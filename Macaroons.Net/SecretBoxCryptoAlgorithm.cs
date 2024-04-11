@@ -8,11 +8,9 @@ namespace Macaroons
   /// <summary>
   /// Representing algorithms for encrypting and decrypting data using the Secret Box algorithm.
   /// </summary>
+  /// <remarks>Secret Box as used in Macaroons is identical to the XSalsa20-Poly1305 algorithm.</remarks>
   public class SecretBoxCryptoAlgorithm : CryptoAlgorithm
   {
-    private const int SECRET_BOX_ZERO_BYTES = 0;
-
-
     /// <summary>
     /// Initialize crypto algorithm configured to use a random nonce.
     /// </summary>
@@ -69,20 +67,12 @@ namespace Macaroons
           throw new ApplicationException("Could not decrypt"); // FIXME: Improve.
       }
 
-#if NET46_OR_GREATER
-      // Create a cipher block consisting of the nonce and the cipher text excluding the padding
-      byte[] cipherBlock = new byte[nonce.Length + cipherTextPadded.Length - SECRET_BOX_ZERO_BYTES];
-#else
       byte[] cipherBlock = new byte[nonce.Length + cipherTextPadded.Length];
-#endif
       Buffer.BlockCopy(nonce, 0, cipherBlock, 0, nonce.Length);
 
-#if NET46_OR_GREATER
-      Buffer.BlockCopy(cipherTextPadded, SECRET_BOX_ZERO_BYTES, cipherBlock, nonce.Length, cipherBlock.Length - nonce.Length);
-#else
       Buffer.BlockCopy(cipherTextPadded, 0, cipherBlock, nonce.Length, cipherBlock.Length - nonce.Length);
-#endif        
-        return cipherBlock;
+
+      return cipherBlock;
     }
 
 
@@ -99,8 +89,8 @@ namespace Macaroons
       Buffer.BlockCopy(cipherBlock, 0, nonce, 0, nonce.Length);
 
       // Extract cipher text and add padding for the secret box algorithm
-      byte[] cipherTextPadded = new byte[cipherBlock.Length - nonce.Length + SECRET_BOX_ZERO_BYTES];
-      Buffer.BlockCopy(cipherBlock, nonce.Length, cipherTextPadded, SECRET_BOX_ZERO_BYTES, cipherBlock.Length - nonce.Length);
+      byte[] cipherTextPadded = new byte[cipherBlock.Length - nonce.Length];
+      Buffer.BlockCopy(cipherBlock, nonce.Length, cipherTextPadded, 0, cipherBlock.Length - nonce.Length);
 
       // Decrypt the cipher text
       using (var xSalsa20Poly1305 = new XSalsa20Poly1305(key))
