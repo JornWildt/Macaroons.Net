@@ -1,4 +1,4 @@
-2.1.0
+3.0.0
 -----
 * Replaced obsolete Libsodium.Net with NaCL.Net for encrypting third party caveat.
 * No more native code included from obsolete Libsodium - and thus no more need for an obsolete "C++ redistributable 2010".
